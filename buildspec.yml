@@ -16,6 +16,9 @@ phases:
       - echo "Building the Docker image..."
       - docker build -t $IMAGE_TAG .
       - docker tag $IMAGE_TAG $IMAGE_LATEST
+      - echo "Replacing placeholders in taskdef.json..."
+      - sed -i 's|<IMAGE_URI>|'"$IMAGE_TAG"'|g' taskdef.json
+      - sed -i 's|<EXECUTION_ROLE_ARN>|'"$EXECUTION_ROLE_ARN"'|g' taskdef.json
 
   post_build:
     commands:
