@@ -1,5 +1,5 @@
 {
-  "family": "npi-backend-task",
+  "family": "npi-dev-django-task",
   "networkMode": "awsvpc",
   "containerDefinitions": [
     {
