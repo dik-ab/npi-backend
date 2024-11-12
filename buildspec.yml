@@ -4,6 +4,7 @@ phases:
   pre_build:
     commands:
       - echo "Installing Python dependencies..."
+      - python -m pip install --upgrade pip
       - pip install -r requirements.txt
       - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URL
