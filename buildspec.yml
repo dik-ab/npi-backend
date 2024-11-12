@@ -18,7 +18,7 @@ phases:
       - export DATABASE_NAME=$(echo $DB_SECRET | jq -r '.DB_NAME')
       - export DATABASE_USER=$(echo $DB_SECRET | jq -r '.DB_USERNAME')
       - export DATABASE_PASSWORD=$(echo $DB_SECRET | jq -r '.DB_PASSWORD')
-      - export DJANGO_SETTINGS_MODULE="npi.settings.production"
+      - export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
 
   build:
     commands:
