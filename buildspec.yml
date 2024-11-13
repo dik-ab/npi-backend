@@ -3,22 +3,11 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo "Installing Python dependencies..."
-      - python -m pip install --upgrade pip
-      - pip install -r requirements.txt
       - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URL
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=$REPOSITORY_URL:$COMMIT_HASH
       - IMAGE_LATEST=$REPOSITORY_URL:latest
-      - echo "Fetching database credentials from Secrets Manager..."
-      - DB_SECRET=$(aws secretsmanager get-secret-value --secret-id $SECRET_ID --query 'SecretString' --output text)
-      - export DATABASE_HOST=$(echo $DB_SECRET | jq -r '.DB_HOST')
-      - export DATABASE_PORT=$(echo $DB_SECRET | jq -r '.DB_PORT')
-      - export DATABASE_NAME=$(echo $DB_SECRET | jq -r '.DB_NAME')
-      - export DATABASE_USER=$(echo $DB_SECRET | jq -r '.DB_USERNAME')
-      - export DATABASE_PASSWORD=$(echo $DB_SECRET | jq -r '.DB_PASSWORD')
-      - export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
 
   build:
     commands:
@@ -36,9 +25,6 @@ phases:
       - echo "Pushing the Docker image to ECR..."
       - docker push $IMAGE_TAG
       - docker push $IMAGE_LATEST
-      - echo "Running Django migrations..."
-      - python manage.py migrate
-      - echo "Build and migrations completed on `date`"
       - echo "Build completed on `date`"
 
 artifacts:
