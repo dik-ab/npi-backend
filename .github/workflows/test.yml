@@ -54,4 +54,4 @@ jobs:
       - name: Run code formatting check
         run: |
           black .
-          flake8 --max-line-length 170 --max-complexity 15 --ignore E203,F403,F405,E252,W606,W503,E231
+          flake8 --max-line-length 170 --max-complexity 15 --ignore F403,F405
