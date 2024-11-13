@@ -1,5 +1,8 @@
 FROM python:3.10-slim
 
+# PostgreSQLの開発ヘッダーをインストール
+RUN apt-get update && apt-get install -y libpq-dev gcc
+
 WORKDIR /app
 
 COPY requirements.txt .

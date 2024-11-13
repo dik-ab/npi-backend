@@ -17,7 +17,9 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from mail_templates.views import SendMailView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path('send-mail/', SendMailView.as_view(), name='send-mail'),
 ]
