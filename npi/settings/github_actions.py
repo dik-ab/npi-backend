@@ -8,7 +8,7 @@ DATABASES = {
         'NAME': 'npi_db',
         'USER': 'npi',
         'PASSWORD': 'password',
-        'HOST': 'postgres',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }
