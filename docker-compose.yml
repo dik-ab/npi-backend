@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    container_name: django_postgres
+    environment:
+      POSTGRES_USER: "npi"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "npi-db"
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  django:
+    build:
+      context: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=npi.settings.local
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=npi-db
+      - DATABASE_USER=npi
+      - DATABASE_PASSWORD=password
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
