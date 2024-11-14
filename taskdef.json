@@ -18,7 +18,29 @@
       "environment": [
         {
           "name": "DJANGO_SETTINGS_MODULE",
-          "value": "npi.settings.dev"
+          "value": "<DJANGO_SETTINGS_MODULE>"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "DATABASE_NAME",
+          "valueFrom": "<SECRET_ID>:<DB_NAME>::"
+        },
+        {
+          "name": "DATABASE_USER",
+          "valueFrom": "<SECRET_ID>:<DB_USERNAME>::"
+        },
+        {
+          "name": "DATABASE_PASSWORD",
+          "valueFrom": "<SECRET_ID>:<DB_PASSWORD>::"
+        },
+        {
+          "name": "DATABASE_HOST",
+          "valueFrom": "<SECRET_ID>:<DB_HOST>::"
+        },
+        {
+          "name": "DATABASE_PORT",
+          "valueFrom": "<SECRET_ID>:<DB_PORT>::"
         }
       ],
       "logConfiguration": {
