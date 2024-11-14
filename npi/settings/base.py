@@ -111,4 +111,4 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-DEFAULT_FROM_EMAIL = os.environ.get('SENDER_EMAIL', 'npi-example@domain.com')
+DEFAULT_FROM_EMAIL = os.environ.get('SENDER_EMAIL', 'abe@livepass.jp')

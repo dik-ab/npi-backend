@@ -13,23 +13,5 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  django:
-    build:
-      context: .
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/app
-    ports:
-      - "8000:8000"
-    environment:
-      - DJANGO_SETTINGS_MODULE=npi.settings.local
-      - DATABASE_HOST=db
-      - DATABASE_PORT=5432
-      - DATABASE_NAME=npi-db
-      - DATABASE_USER=npi
-      - DATABASE_PASSWORD=password
-    depends_on:
-      - db
-
 volumes:
   postgres_data:
