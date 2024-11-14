@@ -24,23 +24,23 @@
       "secrets": [
         {
           "name": "DATABASE_NAME",
-          "valueFrom": "<SECRET_ID>:<DB_NAME>::"
+          "valueFrom": "<SECRET_ID>:DB_NAME::"
         },
         {
           "name": "DATABASE_USER",
-          "valueFrom": "<SECRET_ID>:<DB_USERNAME>::"
+          "valueFrom": "<SECRET_ID>:DB_USERNAME::"
         },
         {
           "name": "DATABASE_PASSWORD",
-          "valueFrom": "<SECRET_ID>:<DB_PASSWORD>::"
+          "valueFrom": "<SECRET_ID>:DB_PASSWORD::"
         },
         {
           "name": "DATABASE_HOST",
-          "valueFrom": "<SECRET_ID>:<DB_HOST>::"
+          "valueFrom": "<SECRET_ID>:DB_HOST::"
         },
         {
           "name": "DATABASE_PORT",
-          "valueFrom": "<SECRET_ID>:<DB_PORT>::"
+          "valueFrom": "<SECRET_ID>:DB_PORT::"
         }
       ],
       "logConfiguration": {
