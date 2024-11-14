@@ -22,4 +22,5 @@ from mail_templates.views import SendMailView
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('send-mail/', SendMailView.as_view(), name='send-mail'),
+    path('health', lambda request: HttpResponse(status=200), name='health_check'),
 ]
