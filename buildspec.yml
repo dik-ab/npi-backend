@@ -8,6 +8,14 @@ phases:
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=$REPOSITORY_URL:$COMMIT_HASH
       - IMAGE_LATEST=$REPOSITORY_URL:latest
+      - DB_SECRET=$(aws secretsmanager get-secret-value --secret-id $SECRET_ID --query 'SecretString' --output text)
+      - echo "Fetching database credentials from Secrets Manager..."
+      - export DATABASE_HOST=$(echo $DB_SECRET | jq -r '.DB_HOST')
+      - export DATABASE_PORT=$(echo $DB_SECRET | jq -r '.DB_PORT')
+      - export DATABASE_NAME=$(echo $DB_SECRET | jq -r '.DB_NAME')
+      - export DATABASE_USER=$(echo $DB_SECRET | jq -r '.DB_USERNAME')
+      - export DATABASE_PASSWORD=$(echo $DB_SECRET | jq -r '.DB_PASSWORD')
+      - export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
 
   build:
     commands:
@@ -19,6 +27,13 @@ phases:
       - echo "Replacing placeholders in taskdef.json..."
       - sed -i 's|<IMAGE_URI>|'"$IMAGE_TAG"'|g' taskdef.json
       - sed -i 's|<EXECUTION_ROLE_ARN>|'"$EXECUTION_ROLE_ARN"'|g' taskdef.json
+      - sed -i 's|<SECRET_ID>|'"$SECRET_ID"'|g' taskdef.json
+      - sed -i 's|<DB_NAME>|'"$DATABASE_NAME"'|g' taskdef.json
+      - sed -i 's|<DB_USERNAME>|'"$DATABASE_USER"'|g' taskdef.json
+      - sed -i 's|<DB_PASSWORD>|'"$DATABASE_PASSWORD"'|g' taskdef.json
+      - sed -i 's|<DB_HOST>|'"$DATABASE_HOST"'|g' taskdef.json
+      - sed -i 's|<DB_PORT>|'"$DATABASE_PORT"'|g' taskdef.json
+      - sed -i 's|<DJANGO_SETTINGS_MODULE>|'"$DJANGO_SETTINGS_MODULE"'|g' taskdef.json
 
   post_build:
     commands:
