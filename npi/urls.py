@@ -18,8 +18,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from mail_templates.views import SendMailView
+from django.http import HttpResponse
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('send-mail/', SendMailView.as_view(), name='send-mail'),
+    path('health', lambda request: HttpResponse(status=200), name='health_check'),
 ]
