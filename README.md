@@ -21,7 +21,7 @@ git clone https://github.com/yourusername/npi-backend.git
 docker-compose up -d 
 ```
 
-
+必要に応じて、環境変数 SENDER_EMAIL に送信元アドレスを設定ください。
 
 ###　単体テスト
 
