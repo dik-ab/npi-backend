@@ -13,3 +13,5 @@ DATABASES = {
         "PORT": os.getenv("DATABASE_PORT", "5432"),
     }
 }
+
+EMAIL_BACKEND = 'django_ses.SESBackend'

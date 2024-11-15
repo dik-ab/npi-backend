@@ -19,6 +19,8 @@ phases:
       - docker build -t $IMAGE_TAG .
       - docker tag $IMAGE_TAG $IMAGE_LATEST
       - echo "Replacing placeholders in taskdef.json..."
+      - sed -i 's|<AWS_REGION>|'"$AWS_DEFAULT_REGION"'|g' taskdef.json
+      - sed -i 's|<SENDER_EMAIL>|'"$SENDER_EMAIL"'|g' taskdef.json
       - sed -i 's|<IMAGE_URI>|'"$IMAGE_TAG"'|g' taskdef.json
       - sed -i 's|<EXECUTION_ROLE_ARN>|'"$EXECUTION_ROLE_ARN"'|g' taskdef.json
       - sed -i 's|<SECRET_ID>|'"$SECRET_ID"'|g' taskdef.json

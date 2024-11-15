@@ -19,6 +19,14 @@
         {
           "name": "DJANGO_SETTINGS_MODULE",
           "value": "<DJANGO_SETTINGS_MODULE>"
+        },
+        {
+          "name": "AWS_REGION",
+          "value": "<AWS_REGION>"
+        },
+        {
+          "name": "SENDER_EMAIL",
+          "value": "<SENDER_EMAIL>"
         }
       ],
       "secrets": [
