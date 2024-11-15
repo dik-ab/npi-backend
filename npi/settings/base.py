@@ -114,4 +114,4 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DEFAULT_FROM_EMAIL = os.environ.get('SENDER_EMAIL')
 AWS_SES_REGION_NAME = os.environ.get('AWS_REGION')
-AWS_SES_REGION_ENDPOINT = f"email.${AWS_SES_REGION_NAME}.amazonaws.com"
+AWS_SES_REGION_ENDPOINT = f"email.{AWS_SES_REGION_NAME}.amazonaws.com"
