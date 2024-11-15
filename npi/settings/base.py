@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_ses"
 ]
 
 MIDDLEWARE = [
@@ -111,4 +112,6 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-DEFAULT_FROM_EMAIL = os.environ.get('SENDER_EMAIL', 'abe@livepass.jp')
+DEFAULT_FROM_EMAIL = os.environ.get('SENDER_EMAIL')
+AWS_SES_REGION_NAME = os.environ.get('AWS_REGION')
+AWS_SES_REGION_ENDPOINT = f"email.${AWS_SES_REGION_NAME}.amazonaws.com"
