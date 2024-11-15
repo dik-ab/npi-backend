@@ -23,6 +23,7 @@ phases:
       - sed -i 's|<SENDER_EMAIL>|'"$SENDER_EMAIL"'|g' taskdef.json
       - sed -i 's|<IMAGE_URI>|'"$IMAGE_TAG"'|g' taskdef.json
       - sed -i 's|<EXECUTION_ROLE_ARN>|'"$EXECUTION_ROLE_ARN"'|g' taskdef.json
+      - sed -i 's|<TASK_ROLE_ARN>|'"$TASK_ROLE_ARN"'|g' taskdef.json
       - sed -i 's|<SECRET_ID>|'"$SECRET_ID"'|g' taskdef.json
       - sed -i 's|<DJANGO_SETTINGS_MODULE>|'"$DJANGO_SETTINGS_MODULE"'|g' taskdef.json
 
