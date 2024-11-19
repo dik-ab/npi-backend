@@ -1,7 +1,9 @@
-from rest_framework.test import APITestCase
-from rest_framework import status
 from django.utils.timezone import now
+from rest_framework import status
+from rest_framework.test import APITestCase
+
 from accounts.models import Account
+
 
 class AccountViewTestCase(APITestCase):
     def setUp(self):
@@ -14,7 +16,7 @@ class AccountViewTestCase(APITestCase):
             name="Test User 2",
             email="test2@example.com",
             password="securepassword2",
-            deleted_at=now()
+            deleted_at=now(),
         )
         self.valid_account_data = {
             "name": "New User",
@@ -56,7 +58,9 @@ class AccountViewTestCase(APITestCase):
         response = self.client.post(self.base_url, data=self.valid_account_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["email"], self.valid_account_data["email"])
-        self.assertTrue(Account.objects.filter(email=self.valid_account_data["email"]).exists())
+        self.assertTrue(
+            Account.objects.filter(email=self.valid_account_data["email"]).exists()
+        )
 
     def test_create_account_invalid_data(self):
         """
@@ -75,7 +79,9 @@ class AccountViewTestCase(APITestCase):
         """
         アカウント情報を正常に更新
         """
-        response = self.client.put(f"{self.base_url}{self.account1.id}/", data=self.update_account_data)
+        response = self.client.put(
+            f"{self.base_url}{self.account1.id}/", data=self.update_account_data
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.account1.refresh_from_db()
         self.assertEqual(self.account1.name, self.update_account_data["name"])
@@ -84,7 +90,9 @@ class AccountViewTestCase(APITestCase):
         """
         存在しないアカウントの更新
         """
-        response = self.client.put(f"{self.base_url}999/", data=self.update_account_data)
+        response = self.client.put(
+            f"{self.base_url}999/", data=self.update_account_data
+        )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_account_success(self):

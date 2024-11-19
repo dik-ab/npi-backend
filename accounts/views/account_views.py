@@ -1,9 +1,11 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.utils.timezone import now
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from ..models import Account
 from ..serializer import AccountSerializer
-from django.utils.timezone import now
+
 
 class AccountView(APIView):
     def get(self, request, pk=None):
@@ -13,7 +15,9 @@ class AccountView(APIView):
                 serializer = AccountSerializer(account)
                 return Response(serializer.data)
             except Account.DoesNotExist:
-                return Response({"error": "Account not found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {"error": "Account not found"}, status=status.HTTP_404_NOT_FOUND
+                )
         else:
             accounts = Account.objects.filter(deleted_at__isnull=True)
             serializer = AccountSerializer(accounts, many=True)
@@ -30,7 +34,9 @@ class AccountView(APIView):
         try:
             account = Account.objects.get(pk=pk)
         except Account.DoesNotExist:
-            return Response({"error": "Account not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Account not found"}, status=status.HTTP_404_NOT_FOUND
+            )
         serializer = AccountSerializer(account, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -42,7 +48,11 @@ class AccountView(APIView):
             account = Account.objects.get(pk=pk)
             account.deleted_at = now()
             account.save()
-            return Response({"message": "Account deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                {"message": "Account deleted successfully"},
+                status=status.HTTP_204_NO_CONTENT,
+            )
         except Account.DoesNotExist:
-            return Response({"error": "Account not found"}, status=status.HTTP_404_NOT_FOUND)
-
+            return Response(
+                {"error": "Account not found"}, status=status.HTTP_404_NOT_FOUND
+            )

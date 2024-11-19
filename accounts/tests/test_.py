@@ -1,6 +1,9 @@
-from django.test import TestCase
-from accounts.models import Account
 from datetime import datetime, timezone
+
+from django.test import TestCase
+
+from accounts.models import Account
+
 
 class AccountModelTest(TestCase):
     def setUp(self):
@@ -17,7 +20,9 @@ class AccountModelTest(TestCase):
         self.assertEqual(self.account.email, "test@example.com")
         self.assertEqual(self.account.name, "Test User")
         self.assertEqual(self.account.password, "securepassword")
-        self.assertEqual(self.account.last_login_at, datetime(2024, 11, 18, tzinfo=timezone.utc))
+        self.assertEqual(
+            self.account.last_login_at, datetime(2024, 11, 18, tzinfo=timezone.utc)
+        )
         self.assertIsNone(self.account.deleted_at)
 
     def test_str_representation(self):

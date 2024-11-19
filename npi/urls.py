@@ -16,13 +16,14 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include
-from mail_templates.views import SendMailView
 from django.http import HttpResponse
+from django.urls import include, path
+
+from mail_templates.views import SendMailView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('api/accounts/', include('accounts.urls')),
-    path('send-mail/', SendMailView.as_view(), name='send-mail'),
-    path('health', lambda request: HttpResponse(status=200), name='health_check'),
+    path("api/accounts/", include("accounts.urls")),
+    path("send-mail/", SendMailView.as_view(), name="send-mail"),
+    path("health", lambda request: HttpResponse(status=200), name="health_check"),
 ]
