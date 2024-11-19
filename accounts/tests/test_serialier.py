@@ -1,7 +1,6 @@
 from django.contrib.auth.hashers import check_password
 from django.test import TestCase
 
-from accounts.models import Account
 from accounts.serializer import AccountSerializer
 
 
