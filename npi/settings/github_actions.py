@@ -1,4 +1,4 @@
-from .base import * # noqa
+from .base import *  # noqa
 
 DEBUG = True
 
@@ -12,3 +12,5 @@ DATABASES = {
         "PORT": "5432",
     }
 }
+
+SECURE_COOKIES = True

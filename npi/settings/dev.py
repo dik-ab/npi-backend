@@ -1,5 +1,6 @@
-from .base import * # noqa
 import os
+
+from .base import *  # noqa
 
 DEBUG = True
 
@@ -14,4 +15,6 @@ DATABASES = {
     }
 }
 
-EMAIL_BACKEND = 'django_ses.SESBackend'
+EMAIL_BACKEND = "django_ses.SESBackend"
+
+SECURE_COOKIES = True
