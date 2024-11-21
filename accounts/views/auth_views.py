@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
+from npi.utils import ERROR_MESSAGES
 
 from accounts.models import Account
 
@@ -14,18 +15,25 @@ class LoginView(APIView):
         email = request.data.get("email")
         password = request.data.get("password")
 
+        # 必須フィールドのチェック
+        if not email or not password:
+            return Response(
+                ERROR_MESSAGES["400_ERRORS"],
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # ユーザー認証
         try:
             user = Account.objects.get(email=email)
         except Account.DoesNotExist:
             return Response(
-                {"error": "Invalid email or password"},
-                status=status.HTTP_401_UNAUTHORIZED,
+                ERROR_MESSAGES["404_ERRORS"],
+                status=status.HTTP_404_NOT_FOUND,
             )
         if not user or not user.check_password(password):
             # 存在しないユーザーでも、パスワードが間違っている場合でも同じエラーメッセージを返す
             return Response(
-                {"error": "Invalid email or password"},
+                ERROR_MESSAGES["401_ERRORS"],
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         # JWTトークンの生成
@@ -67,7 +75,7 @@ class RefreshTokenView(TokenRefreshView):
         refresh_token = request.COOKIES.get("refresh_token")
         if not refresh_token:
             return Response(
-                {"error": "Refresh token is missing"},
+                ERROR_MESSAGES["400_ERRORS"],
                 status=status.HTTP_400_BAD_REQUEST,
             )
         # リフレッシュトークンで新しいアクセストークンを生成
@@ -87,7 +95,7 @@ class RefreshTokenView(TokenRefreshView):
             return response
         except InvalidToken:
             return Response(
-                {"error": "Invalid refresh token"}, status=status.HTTP_401_UNAUTHORIZED
+                ERROR_MESSAGES["401_ERRORS"], status=status.HTTP_401_UNAUTHORIZED
             )
 
 

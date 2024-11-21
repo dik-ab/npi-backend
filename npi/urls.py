@@ -20,10 +20,17 @@ from django.http import HttpResponse
 from django.urls import include, path
 
 from mail_templates.views import SendMailView
+from accounts.views.account_views import AccountView, MeView
+from accounts.views.auth_views import LoginView, LogoutView, RefreshTokenView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/accounts/", include("accounts.urls")),
+    path("me/", MeView.as_view(), name="me"),
+    path("account/", AccountView.as_view(), name="account_create"),
+    path("account/<int:pk>/", AccountView.as_view(), name="account_detail_update_delete"),
+    path("login/", LoginView.as_view(), name="login"),
+    path("logout/", LogoutView.as_view(), name="logout"),
+    path("refresh/", RefreshTokenView.as_view(), name="refresh"),
     path("send-mail/", SendMailView.as_view(), name="send-mail"),
     path("health", lambda request: HttpResponse(status=200), name="health_check"),
 ]

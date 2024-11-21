@@ -18,16 +18,16 @@ git clone https://github.com/yourusername/npi-backend.git
 プロジェクトを起動するには、以下のコマンドを実行してください。
 
 ```bash
-docker-compose up -d 
+docker-compose up -d
+source venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+python manage.py migrate
 ```
 
 必要に応じて、環境変数 SENDER_EMAIL に送信元アドレスを設定ください。
 
 ###　単体テスト
-
-```bash
-docker-compose exec django /bin/bash
-```
 
 ```bash
 python manage.py test
