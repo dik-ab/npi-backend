@@ -155,24 +155,11 @@ class AccountViewTestCase(APITestCase):
         self.login_url = reverse("login")
         self.account_url = reverse("account_create")
 
-        # テスト用ユーザーを作成
-        self.account1 = Account.objects.create(
-            email="test@example.com",
-            password=make_password("securepassword"),  # パスワードを暗号化して保存
-            name="Test User",
-        )
-        self.account1.save()
-
         self.valid_account_data = {
             "name": "New User",
             "email": "newuser@example.com",
             "password": "securepassword3",
         }
-
-        # JWTトークンの取得
-        login_response = self.client.post(self.login_url, {"email": "test@example.com", "password": "securepassword"})
-        self.assertEqual(login_response.status_code, status.HTTP_200_OK)
-        self.client.cookies["access_token"] = login_response.cookies.get("access_token").value
 
     def test_post_single_account_success(self):
         """
@@ -204,13 +191,3 @@ class AccountViewTestCase(APITestCase):
         }
         response = self.client.post(self.account_url, data=invalid_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_get_single_account_unauthorized(self):
-        """
-        アカウント作成の、認証エラー
-        """
-        self.client.cookies.clear()  # 認証を無効にする
-        response = self.client.get(self.account_url, data=self.valid_account_data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        expected_response = ERROR_MESSAGES["401_ERRORS"]
-        self.assertEqual(response.json(), expected_response)

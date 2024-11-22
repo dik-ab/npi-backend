@@ -53,7 +53,7 @@ class MeView(APIView):
 
 
 class AccountView(APIView):
-    permission_classes = (IsAuthenticated,) # 認証が必要
+    authentication_classes = [] # 認証クラスを無効にする
 
     def post(self, request):
         serializer = AccountSerializer(data=request.data)
