@@ -10,6 +10,10 @@ class Account(models.Model):
     last_login_at = models.DateTimeField(null=True, blank=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
 
+    @property
+    def is_authenticated(self):
+        return True
+
     def __str__(self):
         return self.email
 

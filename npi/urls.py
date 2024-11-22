@@ -27,7 +27,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("me/", MeView.as_view(), name="me"),
     path("account/", AccountView.as_view(), name="account_create"),
-    path("account/<int:pk>/", AccountView.as_view(), name="account_detail_update_delete"),
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("refresh/", RefreshTokenView.as_view(), name="refresh"),

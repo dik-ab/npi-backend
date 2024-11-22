@@ -6,7 +6,7 @@ from .models import Account
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = "__all__"
+        fields = ['id', 'name', 'email', 'password', 'last_login_at']  # 'deleted_at'を除外
         extra_kwargs = {
             "password": {"write_only": True},
         }

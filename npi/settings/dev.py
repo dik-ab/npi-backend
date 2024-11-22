@@ -18,3 +18,4 @@ DATABASES = {
 EMAIL_BACKEND = "django_ses.SESBackend"
 
 SECURE_COOKIES = True
+HTTPONLY_COOKIES = True
