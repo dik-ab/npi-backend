@@ -1,4 +1,3 @@
-from django.utils.timezone import now
 from rest_framework import status
 from rest_framework.test import APITestCase
 from npi.utils import ERROR_MESSAGES
