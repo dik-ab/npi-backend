@@ -27,13 +27,13 @@ class SendMailViewTests(APITestCase):
         # テスト用ユーザーを作成
         self.account1 = Account.objects.create(
             email="test@example.com",
-            password=make_password("securepassword"),  # パスワードを暗号化して保存
+            password=make_password("securepassword1"),  # パスワードを暗号化して保存
             name="Test User",
         )
         self.account1.save()
 
         # JWTトークンの取得
-        login_response = self.client.post(self.login_url, {"email": "test@example.com", "password": "securepassword"})
+        login_response = self.client.post(self.login_url, {"email": "test@example.com", "password": "securepassword1"})
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
         self.client.cookies["access_token"] = login_response.cookies.get("access_token").value
 

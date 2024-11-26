@@ -4,7 +4,7 @@ from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.exceptions import InvalidToken
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 from npi.utils import ERROR_MESSAGES
@@ -15,8 +15,10 @@ from accounts.models import Account
 # ロガーの設定
 logger = logging.getLogger(__name__)
 
+
 class LoginView(APIView):
-    authentication_classes = [] # 認証クラスを無効にする
+    # 認証クラスを無効にする
+    authentication_classes = []
 
     def post(self, request):
         email = request.data.get("email")
@@ -36,11 +38,11 @@ class LoginView(APIView):
         except Account.DoesNotExist:
             logger.error(f"User with email {email} does not exist")
             return Response(
-                ERROR_MESSAGES["404_ERRORS"],
-                status=status.HTTP_404_NOT_FOUND,
+                ERROR_MESSAGES["401_ERRORS"],
+                status=status.HTTP_401_UNAUTHORIZED,
             )
-        if not user or not user.check_password(password):
-            # 存在しないユーザーでも、パスワードが間違っている場合でも同じエラーメッセージを返す
+        if not user or user.deleted_at is not None or not user.check_password(password):
+            # 存在しないユーザー or 削除済みユーザー or パスワードが間違っている場合に同じエラーメッセージを返す
             logger.error(f"Invalid password for user with email {email}")
             return Response(
                 ERROR_MESSAGES["401_ERRORS"],
@@ -71,7 +73,8 @@ class LoginView(APIView):
                 httponly=settings.HTTPONLY_COOKIES,
                 secure=settings.SECURE_COOKIES,
                 samesite=None,
-                max_age=access_max_age,  # 有効期限（秒）
+                # 有効期限（秒）
+                max_age=access_max_age,
             )
             response.set_cookie(
                 key="refresh_token",
@@ -79,7 +82,8 @@ class LoginView(APIView):
                 httponly=settings.HTTPONLY_COOKIES,
                 secure=settings.SECURE_COOKIES,
                 samesite=None,
-                max_age=refresh_max_age,  # 有効期限（秒）
+                # 有効期限（秒）
+                max_age=refresh_max_age,
             )
             return response
         except Exception as e:
@@ -91,7 +95,6 @@ class LoginView(APIView):
 
 
 class RefreshTokenView(TokenRefreshView):
-    authentication_classes = [] # 認証クラスを無効にする
 
     def post(self, request, *args, **kwargs):
         # Cookieからリフレッシュトークンを取得
@@ -122,10 +125,17 @@ class RefreshTokenView(TokenRefreshView):
             return Response(
                 ERROR_MESSAGES["401_ERRORS"], status=status.HTTP_401_UNAUTHORIZED
             )
+        except TokenError as e:
+            logger.error(f"Token error: {str(e)}")
+            return Response(
+                {"detail": "Refresh token has expired or is invalid."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
 
 class LogoutView(APIView):
-    permission_classes = (IsAuthenticated,) # 認証が必要
+    # 認証が必要
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         response = Response({"message": "Logout successful"}, status=status.HTTP_200_OK)

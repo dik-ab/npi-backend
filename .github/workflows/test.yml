@@ -51,7 +51,12 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: "npi.settings.github_actions"
 
-      - name: Run code formatting check
-        run: |
-          black .
-          flake8 --max-line-length 170 --max-complexity 15 --ignore F403,F405
+      - name: Run code formatting check (Black)
+        run: black . --check
+
+      - name: Run linting (Flake8)
+        run: flake8 .
+        env:
+          FLAKE8_MAX_LINE_LENGTH: 170
+          FLAKE8_MAX_COMPLEXITY: 15
+          FLAKE8_IGNORE: F403,F405

@@ -8,12 +8,12 @@ from accounts.models import Account
 
 
 class AuthViewsTestCase(APITestCase):
-    
+
     def setUp(self):
         # テスト用ユーザーを作成
         self.user = Account.objects.create(
             email="test@example.com",
-            password=make_password("securepassword"),  # パスワードを暗号化して保存
+            password=make_password("securepassword1"),  # パスワードを暗号化して保存
             name="Test User",
         )
         self.login_url = reverse("login")
@@ -25,7 +25,7 @@ class AuthViewsTestCase(APITestCase):
         正しいメールアドレスとパスワードでログインできることをテスト
         """
         response = self.client.post(
-            self.login_url, {"email": "test@example.com", "password": "securepassword"}
+            self.login_url, {"email": "test@example.com", "password": "securepassword1"}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access_token", response.cookies)
@@ -53,15 +53,15 @@ class AuthViewsTestCase(APITestCase):
 
     def test_login_not_found(self):
         """
-        DBにアカウントが一件も存在しない場合に、404エラーを返すことをテスト
+        DBにアカウントが一件も存在しない場合に、401エラーを返すことをテスト
         """
         # アカウントを全削除
         Account.objects.all().delete()
         response = self.client.post(
-            self.login_url, {"email": "test@example.com", "password": "wrongpassword"}
+            self.login_url, {"email": "test@example.com", "password": "wrongpassword1"}
         )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        expected_response = ERROR_MESSAGES["404_ERRORS"]
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        expected_response = ERROR_MESSAGES["401_ERRORS"]
         self.assertEqual(response.data, expected_response)
 
     def test_refresh_token_success(self):
@@ -70,7 +70,7 @@ class AuthViewsTestCase(APITestCase):
         """
         # ログインしてリフレッシュトークンを取得
         login_response = self.client.post(
-            self.login_url, {"email": "test@example.com", "password": "securepassword"}
+            self.login_url, {"email": "test@example.com", "password": "securepassword1"}
         )
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
         refresh_token = login_response.cookies.get("refresh_token").value
@@ -95,8 +95,6 @@ class AuthViewsTestCase(APITestCase):
         """
         self.client.cookies["refresh_token"] = "invalidtoken"
         response = self.client.post(self.refresh_url)
-        print("??????")
-        print(response)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIn("error", response.data)
 
@@ -106,7 +104,7 @@ class AuthViewsTestCase(APITestCase):
         """
         # ログインしてトークンを取得
         login_response = self.client.post(
-            self.login_url, {"email": "test@example.com", "password": "securepassword"}
+            self.login_url, {"email": "test@example.com", "password": "securepassword1"}
         )
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
         self.client.cookies["access_token"] = login_response.cookies.get("access_token").value

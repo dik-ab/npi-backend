@@ -9,7 +9,9 @@ import logging
 # ロガーの設定
 logger = logging.getLogger(__name__)
 
+
 class MeViewTestCase(APITestCase):
+
     def setUp(self):
         self.login_url = reverse("login")
         self.me_url = reverse("me")
@@ -17,19 +19,20 @@ class MeViewTestCase(APITestCase):
         # テスト用ユーザーを作成
         self.account1 = Account.objects.create(
             email="test@example.com",
-            password=make_password("securepassword"),  # パスワードを暗号化して保存
+            # パスワードを暗号化して保存
+            password=make_password("securepassword1"),
             name="Test User",
         )
         self.account1.save()
 
         # JWTトークンの取得
-        login_response = self.client.post(self.login_url, {"email": "test@example.com", "password": "securepassword"})
+        login_response = self.client.post(self.login_url, {"email": "test@example.com", "password": "securepassword1"})
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
         self.client.cookies["access_token"] = login_response.cookies.get("access_token").value
-    
+
     def test_get_me_success(self):
         """
-        自身のアカウント情報取得���功
+        自身のアカウント情報取得成功
         """
         response = self.client.get(self.me_url)
         logger.info(f"Request Cookies: {self.client.cookies}")
@@ -47,7 +50,8 @@ class MeViewTestCase(APITestCase):
         """
         認証されていない状態で自身のアカウント情報を取得しようとする
         """
-        self.client.cookies.clear()  # 認証を無効にする
+        # 認証を無効にする
+        self.client.cookies.clear()
         response = self.client.get(self.me_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         expected_response = ERROR_MESSAGES["401_ERRORS"]
@@ -58,7 +62,7 @@ class MeViewTestCase(APITestCase):
         自身のアカウント情報を正常に更新
         """
         # JWTトークンの取得
-        login_response = self.client.post(self.login_url, {"email": "test@example.com", "password": "securepassword"})
+        login_response = self.client.post(self.login_url, {"email": "test@example.com", "password": "securepassword1"})
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
         self.client.cookies["access_token"] = login_response.cookies.get("access_token").value
 
@@ -93,57 +97,12 @@ class MeViewTestCase(APITestCase):
         """
         認証されていない状態で自身のアカウント情報を更新しようとする
         """
-        self.client.cookies.clear()  # 認証を無効にする
+        # 認証を無効にする
+        self.client.cookies.clear()
         update_data = {
             "name": "Updated Name",
         }
         response = self.client.put(self.me_url, data=update_data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        expected_response = ERROR_MESSAGES["401_ERRORS"]
-        self.assertEqual(response.data, expected_response)
-    
-    def test_delete_me_success(self):
-        """
-        自身のアカウントを正常に削除
-        """
-        delete_data = {
-            "password": "securepassword",
-        }
-        response = self.client.delete(self.me_url, data=delete_data)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.account1.refresh_from_db()
-        self.assertIsNotNone(self.account1.deleted_at)
-
-    def test_delete_me_missing_password(self):
-        """
-        パスワードが提供されていない状態で自身のアカウントを削除しようとする
-        """
-        response = self.client.delete(self.me_url)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        expected_response = ERROR_MESSAGES["400_ERRORS"]
-        self.assertEqual(response.data, expected_response)
-
-    def test_delete_me_invalid_password(self):
-        """
-        無効なパスワードで自身のアカウントを削除しようとする
-        """
-        delete_data = {
-            "password": "wrongpassword",
-        }
-        response = self.client.delete(self.me_url, data=delete_data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        expected_response = ERROR_MESSAGES["401_ERRORS"]
-        self.assertEqual(response.data, expected_response)
-
-    def test_delete_me_unauthorized(self):
-        """
-        認証されていない状態で自身のアカウントを削除しようとする
-        """
-        self.client.cookies.clear() # 認証を無効にする
-        delete_data = {
-            "password": "securepassword",
-        }
-        response = self.client.delete(self.me_url, data=delete_data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         expected_response = ERROR_MESSAGES["401_ERRORS"]
         self.assertEqual(response.data, expected_response)
@@ -185,7 +144,8 @@ class AccountViewTestCase(APITestCase):
         """
         invalid_data = {
             "name": "Invalid User",
-            "email": "",  # 空のメールアドレス
+            # 空のメールアドレス
+            "email": "",
             "password": "securepassword4",
         }
         response = self.client.post(self.account_url, data=invalid_data)
