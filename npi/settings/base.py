@@ -55,9 +55,7 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        'npi.authentication.CookieJWTAuthentication',
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("npi.authentication.CookieJWTAuthentication",),
 }
 
 ROOT_URLCONF = "npi.urls"

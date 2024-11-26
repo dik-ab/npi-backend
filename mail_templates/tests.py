@@ -33,9 +33,13 @@ class SendMailViewTests(APITestCase):
         self.account1.save()
 
         # JWTトークンの取得
-        login_response = self.client.post(self.login_url, {"email": "test@example.com", "password": "securepassword1"})
+        login_response = self.client.post(
+            self.login_url, {"email": "test@example.com", "password": "securepassword1"}
+        )
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
-        self.client.cookies["access_token"] = login_response.cookies.get("access_token").value
+        self.client.cookies["access_token"] = login_response.cookies.get(
+            "access_token"
+        ).value
 
     def test_send_mail_success(self):
         """メール送信が正常に行われることを確認する"""

@@ -19,7 +19,9 @@ class MeView(APIView):
         account = request.user
         if not account:
             logger.error("Unauthorized access attempt")
-            return Response(ERROR_MESSAGES["401_ERRORS"], status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                ERROR_MESSAGES["401_ERRORS"], status=status.HTTP_401_UNAUTHORIZED
+            )
         serializer = AccountSerializer(account)
         return Response(serializer.data)
 
@@ -27,13 +29,17 @@ class MeView(APIView):
         account = request.user
         if not account:
             logger.error("Unauthorized access attempt")
-            return Response(ERROR_MESSAGES["401_ERRORS"], status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                ERROR_MESSAGES["401_ERRORS"], status=status.HTTP_401_UNAUTHORIZED
+            )
         serializer = AccountSerializer(account, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         logger.error("Failed to update account: %s", serializer.errors)
-        return Response(ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class AccountView(APIView):
@@ -46,4 +52,6 @@ class AccountView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         logger.error("Failed to create account: %s", serializer.errors)
-        return Response(ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
+        )

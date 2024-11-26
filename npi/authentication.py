@@ -14,7 +14,7 @@ class CookieJWTAuthentication(JWTAuthentication):
 
     def authenticate(self, request):
         # クッキーからトークンを取得
-        access_token = request.COOKIES.get('access_token')
+        access_token = request.COOKIES.get("access_token")
         # クッキーにアクセストークンがない場合
         if not access_token:
             logger.error("No access token found in cookies")
@@ -30,7 +30,9 @@ class CookieJWTAuthentication(JWTAuthentication):
                 raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
 
             # 期限切れの場合
-            if datetime.fromtimestamp(validated_token["exp"], timezone.utc) < datetime.now(timezone.utc):
+            if datetime.fromtimestamp(
+                validated_token["exp"], timezone.utc
+            ) < datetime.now(timezone.utc):
                 logger.error("Token is expired")
                 raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
 

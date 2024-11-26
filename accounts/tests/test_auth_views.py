@@ -107,8 +107,12 @@ class AuthViewsTestCase(APITestCase):
             self.login_url, {"email": "test@example.com", "password": "securepassword1"}
         )
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
-        self.client.cookies["access_token"] = login_response.cookies.get("access_token").value
-        self.client.cookies["refresh_token"] = login_response.cookies.get("refresh_token").value
+        self.client.cookies["access_token"] = login_response.cookies.get(
+            "access_token"
+        ).value
+        self.client.cookies["refresh_token"] = login_response.cookies.get(
+            "refresh_token"
+        ).value
 
         # ログアウト
         response = self.client.post(self.logout_url)

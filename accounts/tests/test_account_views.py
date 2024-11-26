@@ -26,9 +26,13 @@ class MeViewTestCase(APITestCase):
         self.account1.save()
 
         # JWTトークンの取得
-        login_response = self.client.post(self.login_url, {"email": "test@example.com", "password": "securepassword1"})
+        login_response = self.client.post(
+            self.login_url, {"email": "test@example.com", "password": "securepassword1"}
+        )
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
-        self.client.cookies["access_token"] = login_response.cookies.get("access_token").value
+        self.client.cookies["access_token"] = login_response.cookies.get(
+            "access_token"
+        ).value
 
     def test_get_me_success(self):
         """
@@ -41,7 +45,7 @@ class MeViewTestCase(APITestCase):
         expected_response = {
             "id": self.account1.id,
             "name": self.account1.name,
-            "email": self.account1.email
+            "email": self.account1.email,
         }
         for key in expected_response:
             self.assertEqual(response.data[key], expected_response[key])
@@ -62,9 +66,13 @@ class MeViewTestCase(APITestCase):
         自身のアカウント情報を正常に更新
         """
         # JWTトークンの取得
-        login_response = self.client.post(self.login_url, {"email": "test@example.com", "password": "securepassword1"})
+        login_response = self.client.post(
+            self.login_url, {"email": "test@example.com", "password": "securepassword1"}
+        )
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
-        self.client.cookies["access_token"] = login_response.cookies.get("access_token").value
+        self.client.cookies["access_token"] = login_response.cookies.get(
+            "access_token"
+        ).value
 
         update_data = {
             "name": "Updated Name",
@@ -76,7 +84,7 @@ class MeViewTestCase(APITestCase):
         expected_response = {
             "id": self.account1.id,
             "name": self.account1.name,
-            "email": self.account1.email
+            "email": self.account1.email,
         }
         for key in expected_response:
             self.assertEqual(response.data[key], expected_response[key])
@@ -133,7 +141,7 @@ class AccountViewTestCase(APITestCase):
         expected_response = {
             "id": created_account.id,
             "name": created_account.name,
-            "email": created_account.email
+            "email": created_account.email,
         }
         for key in expected_response:
             self.assertEqual(response.data[key], expected_response[key])

@@ -66,7 +66,9 @@ class LoginView(APIView):
             user.save()
 
             # HttpOnly Cookie にトークンを設定
-            response = Response({"message": "Login successful"}, status=status.HTTP_200_OK)
+            response = Response(
+                {"message": "Login successful"}, status=status.HTTP_200_OK
+            )
             response.set_cookie(
                 key="access_token",
                 value=str(access),
