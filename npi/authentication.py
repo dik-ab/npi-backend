@@ -2,6 +2,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.exceptions import AuthenticationFailed
 from accounts.models import Account
+from rest_framework_simplejwt.exceptions import TokenError
 import logging
 from datetime import datetime, timezone
 from npi.utils import ERROR_MESSAGES
@@ -13,35 +14,45 @@ logger = logging.getLogger(__name__)
 class CookieJWTAuthentication(JWTAuthentication):
 
     def authenticate(self, request):
-        # クッキーからトークンを取得
+        # クッキーからアクセストークンを取得
         access_token = request.COOKIES.get("access_token")
-        # クッキーにアクセストークンがない場合
         if not access_token:
-            logger.error("No access token found in cookies")
+            logger.error("Access token not found in cookies")
             raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
 
         try:
-            # トークンを検証
+            # トークン検証
             validated_token = AccessToken(access_token)
-
-            # 無効な場合
-            if not validated_token:
-                logger.error("Invalid token")
-                raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
-
-            # 期限切れの場合
-            if datetime.fromtimestamp(
-                validated_token["exp"], timezone.utc
-            ) < datetime.now(timezone.utc):
-                logger.error("Token is expired")
-                raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
-
+            # 有効期限の検証
+            self._check_expiration(validated_token)
             user = self.get_user(validated_token)
             return (user, validated_token)
-        except Exception:
-            logger.error("Token validation failed")
+        except TokenError as e:
+            logger.error(f"Token error: {e}")
+            raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
+        except Exception as e:
+            logger.error(f"Unexpected error during authentication: {e}")
             raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
 
+    def _check_expiration(self, token):
+        """トークンの有効期限を確認"""
+        exp_timestamp = token["exp"]
+        # 現在時刻を秒単位の整数として取得
+        current_timestamp = int(datetime.now(timezone.utc).timestamp())
+        # exp が現在時刻より前であれば、期限切れ
+        if current_timestamp > exp_timestamp:
+            logger.error("Access token has expired")
+            raise AuthenticationFailed({"detail": "Token has expired"})
+
     def get_user(self, validated_token):
-        user_id = validated_token["user_id"]
-        return Account.objects.get(id=user_id)
+        """トークンのユーザーを取得"""
+        user_id = validated_token.get("user_id")
+        if not user_id:
+            logger.error("Token does not contain user_id")
+            raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
+        try:
+            user = Account.objects.get(id=user_id)
+        except Account.DoesNotExist:
+            logger.error(f"User with ID {user_id} does not exist")
+            raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
+        return user
