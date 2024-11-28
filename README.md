@@ -22,7 +22,7 @@ docker-compose up -d
 source venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-python manage.py migrate
+pip install -r requirements.txt
 ```
 
 必要に応じて、環境変数 SENDER_EMAIL に送信元アドレスを設定ください。

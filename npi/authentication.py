@@ -23,26 +23,18 @@ class CookieJWTAuthentication(JWTAuthentication):
         try:
             # トークン検証
             validated_token = AccessToken(access_token)
-            # 有効期限の検証
-            self._check_expiration(validated_token)
             user = self.get_user(validated_token)
             return (user, validated_token)
         except TokenError as e:
-            logger.error(f"Token error: {e}")
-            raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
+            # エラーメッセージでタイプを判別
+            error_message = str(e)
+            if "Token is invalid or expired" in error_message:
+                raise AuthenticationFailed("Token has expired or is invalid.")
+            else:
+                raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
         except Exception as e:
             logger.error(f"Unexpected error during authentication: {e}")
             raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
-
-    def _check_expiration(self, token):
-        """トークンの有効期限を確認"""
-        exp_timestamp = token["exp"]
-        # 現在時刻を秒単位の整数として取得
-        current_timestamp = int(datetime.now(timezone.utc).timestamp())
-        # exp が現在時刻より前であれば、期限切れ
-        if current_timestamp > exp_timestamp:
-            logger.error("Access token has expired")
-            raise AuthenticationFailed({"detail": "Token has expired"})
 
     def get_user(self, validated_token):
         """トークンのユーザーを取得"""
