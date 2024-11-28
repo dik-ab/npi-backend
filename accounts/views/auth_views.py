@@ -122,16 +122,11 @@ class RefreshTokenView(TokenRefreshView):
                 max_age=15 * 60,  # 有効期限
             )
             return response
-        except InvalidToken:
-            logger.error("Invalid refresh token provided")
+        except Exception:
+            # トークン検証で例外が発生した場合（トークンの有効期限切れなど）
+            logger.error("An error occurred during refresh token validation.")
             return Response(
                 ERROR_MESSAGES["401_ERRORS"], status=status.HTTP_401_UNAUTHORIZED
-            )
-        except TokenError as e:
-            logger.error(f"Token error: {str(e)}")
-            return Response(
-                {"detail": "Refresh token has expired or is invalid."},
-                status=status.HTTP_401_UNAUTHORIZED,
             )
 
 

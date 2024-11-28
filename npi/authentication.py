@@ -24,10 +24,9 @@ class CookieJWTAuthentication(JWTAuthentication):
             validated_token = AccessToken(access_token)
             user = self.get_user(validated_token)
             return (user, validated_token)
-        except TokenError:
-            raise AuthenticationFailed("Token has expired or is invalid.")
+        # トークン検証で例外が発生した場合（トークンの有効期限切れなど）
         except Exception as e:
-            logger.error(f"Unexpected error during authentication: {e}")
+            logger.error("An error occurred during access token validation.")
             raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
 
     def get_user(self, validated_token):
