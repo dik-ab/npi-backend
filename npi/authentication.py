@@ -4,7 +4,6 @@ from rest_framework.exceptions import AuthenticationFailed
 from accounts.models import Account
 from rest_framework_simplejwt.exceptions import TokenError
 import logging
-from datetime import datetime, timezone
 from npi.utils import ERROR_MESSAGES
 
 # ロガーの設定
