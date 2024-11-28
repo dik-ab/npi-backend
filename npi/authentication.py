@@ -2,7 +2,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.exceptions import AuthenticationFailed
 from accounts.models import Account
-from rest_framework_simplejwt.exceptions import TokenError
 import logging
 from npi.utils import ERROR_MESSAGES
 
@@ -25,7 +24,7 @@ class CookieJWTAuthentication(JWTAuthentication):
             user = self.get_user(validated_token)
             return (user, validated_token)
         # トークン検証で例外が発生した場合（トークンの有効期限切れなど）
-        except Exception as e:
+        except Exception:
             logger.error("An error occurred during access token validation.")
             raise AuthenticationFailed(ERROR_MESSAGES["401_ERRORS"])
 
