@@ -1,58 +1,57 @@
-from django.utils.timezone import now
+import logging
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
-from ..models import Account
 from ..serializer import AccountSerializer
+from npi.utils import ERROR_MESSAGES
+
+# ロガーの設定
+logger = logging.getLogger(__name__)
+
+
+class MeView(APIView):
+    # 認証が必要
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        account = request.user
+        if not account:
+            logger.error("Unauthorized access attempt")
+            return Response(
+                ERROR_MESSAGES["401_ERRORS"], status=status.HTTP_401_UNAUTHORIZED
+            )
+        serializer = AccountSerializer(account)
+        return Response(serializer.data)
+
+    def put(self, request):
+        account = request.user
+        if not account:
+            logger.error("Unauthorized access attempt")
+            return Response(
+                ERROR_MESSAGES["401_ERRORS"], status=status.HTTP_401_UNAUTHORIZED
+            )
+        serializer = AccountSerializer(account, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        logger.error("Failed to update account: %s", serializer.errors)
+        return Response(
+            ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class AccountView(APIView):
-    def get(self, request, pk=None):
-        if pk:
-            try:
-                account = Account.objects.get(pk=pk)
-                serializer = AccountSerializer(account)
-                return Response(serializer.data)
-            except Account.DoesNotExist:
-                return Response(
-                    {"error": "Account not found"}, status=status.HTTP_404_NOT_FOUND
-                )
-        else:
-            accounts = Account.objects.filter(deleted_at__isnull=True)
-            serializer = AccountSerializer(accounts, many=True)
-            return Response(serializer.data)
+    # 認証クラスを無効にする
+    authentication_classes = []
 
     def post(self, request):
         serializer = AccountSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request, pk):
-        try:
-            account = Account.objects.get(pk=pk)
-        except Account.DoesNotExist:
-            return Response(
-                {"error": "Account not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-        serializer = AccountSerializer(account, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        try:
-            account = Account.objects.get(pk=pk)
-            account.deleted_at = now()
-            account.save()
-            return Response(
-                {"message": "Account deleted successfully"},
-                status=status.HTTP_204_NO_CONTENT,
-            )
-        except Account.DoesNotExist:
-            return Response(
-                {"error": "Account not found"}, status=status.HTTP_404_NOT_FOUND
-            )
+        logger.error("Failed to create account: %s", serializer.errors)
+        return Response(
+            ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
+        )

@@ -9,12 +9,12 @@ class AccountSerializerTestCase(TestCase):
         data = {
             "name": "Test User",
             "email": "test@example.com",
-            "password": "plainpassword",
+            "password": "plainpassword1",
         }
         serializer = AccountSerializer(data=data)
         if serializer.is_valid():
             account = serializer.save()
             # 暗号化されたパスワードが保存されていることを確認
-            self.assertTrue(check_password("plainpassword", account.password))
+            self.assertTrue(check_password("plainpassword1", account.password))
         else:
             self.fail("Serializer validation failed")

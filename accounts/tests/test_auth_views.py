@@ -1,52 +1,68 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from rest_framework.test import APITestCase
+from npi.utils import ERROR_MESSAGES
+from django.urls import reverse
 
 from accounts.models import Account
 
 
 class AuthViewsTestCase(APITestCase):
+
     def setUp(self):
         # テスト用ユーザーを作成
         self.user = Account.objects.create(
             email="test@example.com",
-            password=make_password("securepassword"),  # パスワードを暗号化して保存
+            password=make_password("securepassword1"),  # パスワードを暗号化して保存
             name="Test User",
         )
-        self.login_url = "/api/accounts/login/"
-        self.refresh_url = "/api/accounts/token/refresh/"
-        self.logout_url = "/api/accounts/logout/"
+        self.login_url = reverse("login")
+        self.refresh_url = reverse("refresh")
+        self.logout_url = reverse("logout")
 
     def test_login_success(self):
         """
         正しいメールアドレスとパスワードでログインできることをテスト
         """
         response = self.client.post(
-            self.login_url, {"email": "test@example.com", "password": "securepassword"}
+            self.login_url, {"email": "test@example.com", "password": "securepassword1"}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access_token", response.cookies)
         self.assertIn("refresh_token", response.cookies)
 
-    def test_login_invalid_credentials(self):
+    def test_login_bad_request(self):
         """
-        無効な資格情報でログインできないことをテスト
+        リクエストが不正な場合に、400エラーを返すことをテスト
+        """
+        response = self.client.post(self.login_url, {"test": "test@example.com"})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        expected_response = ERROR_MESSAGES["400_ERRORS"]
+        self.assertEqual(response.data, expected_response)
+
+    def test_login_unauthorized(self):
+        """
+        認証に失敗した場合に、401エラーを返すことをテスト
         """
         response = self.client.post(
             self.login_url, {"email": "test@example.com", "password": "wrongpassword"}
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        expected_response = ERROR_MESSAGES["401_ERRORS"]
+        self.assertEqual(response.data, expected_response)
 
-    def test_login_nonexistent_user(self):
+    def test_login_not_found(self):
         """
-        存在しないユーザーでログインできないことをテスト
+        DBにアカウントが一件も存在しない場合に、401エラーを返すことをテスト
         """
+        # アカウントを全削除
+        Account.objects.all().delete()
         response = self.client.post(
-            self.login_url,
-            {"email": "nonexistent@example.com", "password": "securepassword"},
+            self.login_url, {"email": "test@example.com", "password": "wrongpassword1"}
         )
-
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        expected_response = ERROR_MESSAGES["401_ERRORS"]
+        self.assertEqual(response.data, expected_response)
 
     def test_refresh_token_success(self):
         """
@@ -54,7 +70,7 @@ class AuthViewsTestCase(APITestCase):
         """
         # ログインしてリフレッシュトークンを取得
         login_response = self.client.post(
-            self.login_url, {"email": "test@example.com", "password": "securepassword"}
+            self.login_url, {"email": "test@example.com", "password": "securepassword1"}
         )
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
         refresh_token = login_response.cookies.get("refresh_token").value
@@ -79,8 +95,6 @@ class AuthViewsTestCase(APITestCase):
         """
         self.client.cookies["refresh_token"] = "invalidtoken"
         response = self.client.post(self.refresh_url)
-        print("??????")
-        print(response)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIn("error", response.data)
 
@@ -90,9 +104,15 @@ class AuthViewsTestCase(APITestCase):
         """
         # ログインしてトークンを取得
         login_response = self.client.post(
-            self.login_url, {"email": "test@example.com", "password": "securepassword"}
+            self.login_url, {"email": "test@example.com", "password": "securepassword1"}
         )
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
+        self.client.cookies["access_token"] = login_response.cookies.get(
+            "access_token"
+        ).value
+        self.client.cookies["refresh_token"] = login_response.cookies.get(
+            "refresh_token"
+        ).value
 
         # ログアウト
         response = self.client.post(self.logout_url)
