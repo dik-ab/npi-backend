@@ -55,3 +55,7 @@ class AccountSerializer(serializers.ModelSerializer):
         if "password" in validated_data:
             validated_data["password"] = make_password(validated_data["password"])
         return super().update(instance, validated_data)
+
+
+class TOTPVerifySerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=6, min_length=6)

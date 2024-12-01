@@ -7,6 +7,7 @@ class Account(models.Model):
     name = models.CharField(null=False, blank=True)
     email = models.EmailField(null=False, blank=False, unique=True)
     password = models.CharField(null=False, blank=False)
+    secret_key = models.CharField(max_length=32, null=True, blank=True)
     last_login_at = models.DateTimeField(null=True, blank=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
 

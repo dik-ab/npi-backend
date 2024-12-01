@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.contrib.auth.hashers import make_password
 from accounts.models import Account
 import logging
+import pyotp
 
 # ロガーの設定
 logger = logging.getLogger(__name__)
@@ -158,3 +159,127 @@ class AccountViewTestCase(APITestCase):
         }
         response = self.client.post(self.account_url, data=invalid_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class Generate2FAViewTestCase(APITestCase):
+
+    def setUp(self):
+        self.login_url = reverse("login")
+        self.generate_2fa_url = reverse("2fa-generate")
+
+        # テスト用ユーザーを作成
+        self.account1 = Account.objects.create(
+            email="test@example.com",
+            password=make_password("securepassword1"),
+            name="Test User",
+        )
+        self.account1.save()
+
+        # JWTトークンの取得
+        login_response = self.client.post(
+            self.login_url, {"email": "test@example.com", "password": "securepassword1"}
+        )
+        self.assertEqual(login_response.status_code, status.HTTP_200_OK)
+        self.client.cookies["access_token"] = login_response.cookies.get(
+            "access_token"
+        ).value
+
+    def test_generate_2fa_success(self):
+        """
+        2FAのQRコードとシークレットキーの生成成功
+        """
+        response = self.client.get(self.generate_2fa_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("qr_code", response.data["data"])
+        self.assertIsNotNone(response.data["data"]["qr_code"])
+
+    def test_generate_2fa_include_key(self):
+        """
+        include_keyがtrueの場合、シークレットキーを含む
+        """
+        response = self.client.get(self.generate_2fa_url, {"include_key": "true"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("qr_code", response.data["data"])
+        self.assertIn("secret_key", response.data["data"])
+        self.assertIsNotNone(response.data["data"]["qr_code"])
+        self.assertIsNotNone(response.data["data"]["secret_key"])
+
+    def test_generate_2fa_unauthorized(self):
+        """
+        認証されていない状態で2FAのQRコードとシークレットキーを生成しようとする
+        """
+        # 認証を無効にする
+        self.client.cookies.clear()
+        response = self.client.get(self.generate_2fa_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        expected_response = ERROR_MESSAGES["401_ERRORS"]
+        self.assertEqual(response.data, expected_response)
+
+
+class Verify2FAViewTestCase(APITestCase):
+
+    def setUp(self):
+        self.login_url = reverse("login")
+        self.verify_2fa_url = reverse("2fa-verify")
+
+        # テスト用ユーザーを作成
+        self.account1 = Account.objects.create(
+            email="test@example.com",
+            password=make_password("securepassword1"),
+            name="Test User",
+            secret_key=pyotp.random_base32(),
+        )
+        self.account1.save()
+
+        # JWTトークンの取得
+        login_response = self.client.post(
+            self.login_url, {"email": "test@example.com", "password": "securepassword1"}
+        )
+        self.assertEqual(login_response.status_code, status.HTTP_200_OK)
+        self.client.cookies["access_token"] = login_response.cookies.get(
+            "access_token"
+        ).value
+
+    def test_verify_2fa_success(self):
+        """
+        2FAコードの検証成功
+        """
+        totp = pyotp.TOTP(self.account1.secret_key)
+        valid_code = totp.now()
+        response = self.client.post(self.verify_2fa_url, data={"code": valid_code})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["status"], "success")
+        self.assertEqual(response.data["message"], "2FA検証が成功しました")
+        self.account1.refresh_from_db()
+
+    def test_verify_2fa_invalid_code(self):
+        """
+        無効な2FAコードの検証
+        """
+        invalid_code = "123456"
+        response = self.client.post(self.verify_2fa_url, data={"code": invalid_code})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        expected_response = ERROR_MESSAGES["400_ERRORS"]
+        self.assertEqual(response.data, expected_response)
+
+    def test_verify_2fa_missing_code(self):
+        """
+        2FAコードが提供されていない場合の検証
+        """
+        response = self.client.post(self.verify_2fa_url, data={})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        expected_response = ERROR_MESSAGES["400_ERRORS"]
+        self.assertEqual(response.data, expected_response)
+
+    def test_verify_2fa_unauthorized(self):
+        """
+        認証されていない状態で2FAコードを検証しようとする
+        """
+        # 認証を無効にする
+        self.client.cookies.clear()
+        totp = pyotp.TOTP(self.account1.secret_key)
+        valid_code = totp.now()
+        response = self.client.post(self.verify_2fa_url, data={"code": valid_code})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        expected_response = ERROR_MESSAGES["401_ERRORS"]
+        self.assertEqual(response.data, expected_response)
