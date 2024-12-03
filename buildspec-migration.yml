@@ -14,6 +14,7 @@ phases:
       - export DATABASE_USER=$(echo $DB_SECRET | jq -r '.DB_USERNAME')
       - export DATABASE_PASSWORD=$(echo $DB_SECRET | jq -r '.DB_PASSWORD')
       - export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+      - export CLIENT_URL=$CLIENT_URL
 
   build:
     commands:
