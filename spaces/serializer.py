@@ -12,7 +12,6 @@ class SpaceSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
         required=True,
         validators=[
-            MinLengthValidator(1, message="名前は1文字以上である必要があります。"),
             MaxLengthValidator(100, message="名前は100文字以下である必要があります。"),
         ],
     )
@@ -105,7 +104,6 @@ class PermissionSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
         required=True,
         validators=[
-            MinLengthValidator(1, message="名前は1文字以上である必要があります。"),
             MaxLengthValidator(100, message="名前は100文字以下である必要があります。"),
         ],
     )
