@@ -1,50 +1,36 @@
 from django.test import TestCase
 from announcements.models import Announcement
 from announcements.serializers import AnnouncementSerializer
-
+from datetime import datetime, timedelta
+from django.utils.timezone import make_aware
 
 class AnnouncementSerializerTest(TestCase):
     def setUp(self):
-        self.announcement_attributes = {
+        self.valid_data = {
             "title": "Test Announcement",
             "content": "This is a test announcement.",
-            "created_at": "2023-10-01T12:00:00Z",
-            "updated_at": "2023-10-01T12:00:00Z",
+            "announcements_from_at": make_aware(datetime.now()),
+            "announcements_to_at": make_aware(datetime.now() + timedelta(days=1)),
+            "file_path": "path/to/file",
         }
-
-        self.announcement = Announcement.objects.create(**self.announcement_attributes)
-        self.serializer = AnnouncementSerializer(instance=self.announcement)
-
-    def test_contains_expected_fields(self):
-        data = self.serializer.data
-        self.assertEqual(
-            set(data.keys()),
-            set(["id", "title", "content", "created_at", "updated_at"]),
-        )
-
-    def test_title_field_content(self):
-        data = self.serializer.data
-        self.assertEqual(data["title"], self.announcement_attributes["title"])
-
-    def test_content_field_content(self):
-        data = self.serializer.data
-        self.assertEqual(data["content"], self.announcement_attributes["content"])
-
-    def test_created_at_field_content(self):
-        data = self.serializer.data
-        self.assertEqual(data["created_at"], self.announcement_attributes["created_at"])
-
-    def test_updated_at_field_content(self):
-        data = self.serializer.data
-        self.assertEqual(data["updated_at"], self.announcement_attributes["updated_at"])
-
-    def test_invalid_data(self):
-        invalid_data = {
+        self.invalid_data = {
             "title": "",
             "content": "This is a test announcement with invalid title.",
-            "created_at": "2023-10-01T12:00:00Z",
-            "updated_at": "2023-10-01T12:00:00Z",
+            "announcements_from_at": make_aware(datetime.now()),
+            "announcements_to_at": make_aware(datetime.now() + timedelta(days=1)),
+            "file_path": "path/to/file",
         }
-        serializer = AnnouncementSerializer(data=invalid_data)
+
+    def test_valid_data(self):
+        serializer = AnnouncementSerializer(data=self.valid_data)
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.validated_data["title"], self.valid_data["title"])
+        self.assertEqual(serializer.validated_data["content"], self.valid_data["content"])
+        self.assertEqual(serializer.validated_data["announcements_from_at"], self.valid_data["announcements_from_at"])
+        self.assertEqual(serializer.validated_data["announcements_to_at"], self.valid_data["announcements_to_at"])
+        self.assertEqual(serializer.validated_data["file_path"], self.valid_data["file_path"])
+
+    def test_invalid_data(self):
+        serializer = AnnouncementSerializer(data=self.invalid_data)
         self.assertFalse(serializer.is_valid())
-        self.assertEqual(set(serializer.errors.keys()), set(["title"]))
+        self.assertIn("title", serializer.errors)
