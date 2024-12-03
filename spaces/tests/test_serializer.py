@@ -1,5 +1,5 @@
 from django.test import TestCase
-from ..serializer import SpaceSerializer, SpaceAccountCreateSerializer, SpaceAccountSerializer, PermissionSerializer, SpaceAccountPermissionCreateSerializer, SpaceAccountPermissionSerializer
+from spaces.serializer import SpaceSerializer, SpaceAccountCreateSerializer, SpaceAccountSerializer, PermissionSerializer, SpaceAccountPermissionCreateSerializer, SpaceAccountPermissionSerializer
 from spaces.models import Space, SpaceAccount, Permission, SpaceAccountPermission
 from accounts.models import Account
 
