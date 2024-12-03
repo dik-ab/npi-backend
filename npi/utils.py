@@ -32,6 +32,7 @@ ERROR_MESSAGES = {
 
 # 共通のページネーション付きレスポンス
 class CustomPagination(PageNumberPagination):
+
     page_size_query_param = "per_page"
     max_page_size = 100
 

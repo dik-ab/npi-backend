@@ -57,8 +57,8 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "accounts",
-    "announcements",
     "spaces",
+    "announcements",   
 ]
 
 MIDDLEWARE = [

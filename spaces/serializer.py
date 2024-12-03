@@ -128,7 +128,7 @@ def validate_space_account_exists(value):
             "存在しないスペース-アカウントが指定されています。"
         )
 
-
+        
 def validate_permission_exists(value):
     # 存在チェック ※論理削除されていないもののみチェック
     if not Permission.objects.filter(id=value, deleted_at__isnull=True).exists():

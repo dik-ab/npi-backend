@@ -66,6 +66,7 @@ class SpaceListViewTests(APITestCase):
         """
         SpaceAccount.objects.all().delete()
         response = self.client.get(self.url, {"page": 1, "per_page": 10})
+
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data, ERROR_MESSAGES["404_ERRORS"])
 
@@ -76,6 +77,7 @@ class SpaceListViewTests(APITestCase):
         # 認証を無効にする
         self.client.cookies.clear()
         response = self.client.get(self.url, {"page": 1, "per_page": 10})
+
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         expected_response = ERROR_MESSAGES["401_ERRORS"]
         self.assertEqual(response.data, expected_response)

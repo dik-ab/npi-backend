@@ -34,6 +34,6 @@ urlpatterns = [
     path("refresh/", RefreshTokenView.as_view(), name="refresh"),
     path("send-mail/", SendMailView.as_view(), name="send-mail"),
     path("health", lambda request: HttpResponse(status=200), name="health_check"),
-    path("announcements/", include("announcements.urls")),
     path("spaces/", include("spaces.urls")),
+    path("announcements/", include("announcements.urls")),
 ]
