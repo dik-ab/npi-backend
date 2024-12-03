@@ -18,7 +18,7 @@ class SpaceListView(APIView):
 
     def get(self, request):
         # ユーザーが所属しているスペースを取得
-        space_accounts = SpaceAccount.objects.filter(account=request.user)
+        space_accounts = SpaceAccount.objects.filter(account=request.user, deleted_at__isnull=True)
 
         # 必須チェック
         if request.GET.get("page") is None:
