@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.core.validators import (
-    MinLengthValidator,
     MaxLengthValidator,
 )
 from .models import Space, SpaceAccount, Permission, SpaceAccountPermission
