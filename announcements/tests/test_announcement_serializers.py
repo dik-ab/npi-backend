@@ -1,5 +1,4 @@
 from django.test import TestCase
-from announcements.models import Announcement
 from announcements.serializers import AnnouncementSerializer
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
