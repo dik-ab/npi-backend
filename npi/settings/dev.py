@@ -20,6 +20,8 @@ EMAIL_BACKEND = "django_ses.SESBackend"
 SECURE_COOKIES = True
 HTTPONLY_COOKIES = True
 
+CLIENT_URL = os.getenv("CLIENT_URL", "")
 
+CORS_ALLOWED_ORIGINS = [CLIENT_URL,]
 
 
