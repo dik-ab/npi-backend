@@ -10,6 +10,7 @@ from .serializers import SendMailSerializer
 
 
 class SendMailView(APIView):
+    authentication_classes = []
     def post(self, request):
         serializer = SendMailSerializer(data=request.data)
         if serializer.is_valid():
