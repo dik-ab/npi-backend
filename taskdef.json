@@ -27,6 +27,10 @@
         {
           "name": "SENDER_EMAIL",
           "value": "<SENDER_EMAIL>"
+        },
+        {
+          "name":"CLIENT_URL",
+          "value": "<CLIENT_URL>"
         }
       ],
       "secrets": [
