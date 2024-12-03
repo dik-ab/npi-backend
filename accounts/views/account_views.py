@@ -76,8 +76,7 @@ class Generate2FAView(views.APIView):
 
         totp = pyotp.TOTP(user_totp.secret_key)
         provisioning_url = totp.provisioning_uri(
-            request.user.email,
-            issuer_name='NPIApp'
+            request.user.email, issuer_name="NPIApp"
         )
 
         # QRコード生成
@@ -88,17 +87,24 @@ class Generate2FAView(views.APIView):
 
         # QRコードをバイナリに変換
         buffer = BytesIO()
-        img.save(buffer, format='PNG')
+        img.save(buffer, format="PNG")
         qr_code = base64.b64encode(buffer.getvalue()).decode()
 
-        return Response({
-            'status': 'success',
-            'data': {
-                'qr_code': qr_code,
-                # include_keyがtrueの場合はシークレットキーを返す
-                'secret_key': user_totp.secret_key if request.GET.get('include_key') == 'true' else None
-            }
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "status": "success",
+                "data": {
+                    "qr_code": qr_code,
+                    # include_keyがtrueの場合はシークレットキーを返す
+                    "secret_key": (
+                        user_totp.secret_key
+                        if request.GET.get("include_key") == "true"
+                        else None
+                    ),
+                },
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class Verify2FAView(views.APIView):
@@ -121,14 +127,14 @@ class Verify2FAView(views.APIView):
                 ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
             )
 
-        verification_code = serializer.validated_data['code']
+        verification_code = serializer.validated_data["code"]
         totp = pyotp.TOTP(user_totp.secret_key)
 
         if totp.verify(verification_code):
-            return Response({
-                'status': 'success',
-                'message': '2FA検証が成功しました'
-            }, status=status.HTTP_200_OK)
+            return Response(
+                {"status": "success", "message": "2FA検証が成功しました"},
+                status=status.HTTP_200_OK,
+            )
 
         return Response(
             ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST

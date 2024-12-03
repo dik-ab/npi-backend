@@ -1,6 +1,5 @@
 import logging
 from rest_framework import status
-from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -12,6 +11,7 @@ from npi.utils import ERROR_MESSAGES, CustomPagination
 logger = logging.getLogger(__name__)
 
 # Create your views here.
+
 
 class AnnouncementListView(APIView):
     # 認証が必要
@@ -37,7 +37,6 @@ class AnnouncementListView(APIView):
             return paginator.get_paginated_response(serializer.data)
 
         serializer = AnnouncementSerializer(announcements, many=True)
-        return Response({
-            'status': 'success',
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {"status": "success", "data": serializer.data}, status=status.HTTP_200_OK
+        )

@@ -1,5 +1,12 @@
 from django.test import TestCase
-from spaces.serializer import SpaceSerializer, SpaceAccountCreateSerializer, SpaceAccountSerializer, PermissionSerializer, SpaceAccountPermissionCreateSerializer, SpaceAccountPermissionSerializer
+from spaces.serializer import (
+    SpaceSerializer,
+    SpaceAccountCreateSerializer,
+    SpaceAccountSerializer,
+    PermissionSerializer,
+    SpaceAccountPermissionCreateSerializer,
+    SpaceAccountPermissionSerializer,
+)
 from spaces.models import Space, SpaceAccount, Permission, SpaceAccountPermission
 from accounts.models import Account
 
@@ -21,8 +28,13 @@ class SpaceSerializerTest(TestCase):
         serializer = SpaceSerializer(data=self.valid_data)
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.validated_data["name"], self.valid_data["name"])
-        self.assertEqual(serializer.validated_data["icon_image_path"], self.valid_data["icon_image_path"])
-        self.assertEqual(serializer.validated_data["description"], self.valid_data["description"])
+        self.assertEqual(
+            serializer.validated_data["icon_image_path"],
+            self.valid_data["icon_image_path"],
+        )
+        self.assertEqual(
+            serializer.validated_data["description"], self.valid_data["description"]
+        )
 
     def test_invalid_data(self):
         serializer = SpaceSerializer(data=self.invalid_data)
@@ -54,8 +66,14 @@ class PermissionSerializerTest(TestCase):
 
 class SpaceAccountCreateSerializerTest(TestCase):
     def setUp(self):
-        self.space = Space.objects.create(name="Test Space", icon_image_path="path/to/icon.png", description="This is a test space description.")
-        self.account = Account.objects.create(name="testuser", email="testuser@example.com")
+        self.space = Space.objects.create(
+            name="Test Space",
+            icon_image_path="path/to/icon.png",
+            description="This is a test space description.",
+        )
+        self.account = Account.objects.create(
+            name="testuser", email="testuser@example.com"
+        )
         self.valid_data = {
             "space": self.space.id,
             "account": self.account.id,
@@ -72,7 +90,9 @@ class SpaceAccountCreateSerializerTest(TestCase):
         serializer = SpaceAccountCreateSerializer(data=self.valid_data)
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.validated_data["space"], self.valid_data["space"])
-        self.assertEqual(serializer.validated_data["account"], self.valid_data["account"])
+        self.assertEqual(
+            serializer.validated_data["account"], self.valid_data["account"]
+        )
 
     def test_invalid_data(self):
         """
@@ -95,9 +115,17 @@ class SpaceAccountCreateSerializerTest(TestCase):
 
 class SpaceAccountSerializerTest(TestCase):
     def setUp(self):
-        self.space = Space.objects.create(name="Test Space", icon_image_path="path/to/icon.png", description="This is a test space description.")
-        self.account = Account.objects.create(name="testuser", email="testuser@example.com")
-        self.space_account = SpaceAccount.objects.create(space=self.space, account=self.account)
+        self.space = Space.objects.create(
+            name="Test Space",
+            icon_image_path="path/to/icon.png",
+            description="This is a test space description.",
+        )
+        self.account = Account.objects.create(
+            name="testuser", email="testuser@example.com"
+        )
+        self.space_account = SpaceAccount.objects.create(
+            space=self.space, account=self.account
+        )
 
     def test_space_account_serializer(self):
         """
@@ -107,8 +135,12 @@ class SpaceAccountSerializerTest(TestCase):
         self.assertEqual(serializer.data["id"], self.space_account.id)
         self.assertEqual(serializer.data["space"]["id"], self.space.id)
         self.assertEqual(serializer.data["space"]["name"], self.space.name)
-        self.assertEqual(serializer.data["space"]["icon_image_path"], self.space.icon_image_path)
-        self.assertEqual(serializer.data["space"]["description"], self.space.description)
+        self.assertEqual(
+            serializer.data["space"]["icon_image_path"], self.space.icon_image_path
+        )
+        self.assertEqual(
+            serializer.data["space"]["description"], self.space.description
+        )
         self.assertEqual(serializer.data["account"]["id"], self.account.id)
         self.assertEqual(serializer.data["account"]["name"], self.account.name)
         self.assertEqual(serializer.data["account"]["email"], self.account.email)
@@ -116,9 +148,17 @@ class SpaceAccountSerializerTest(TestCase):
 
 class SpaceAccountCreatePermissionSerializerTest(TestCase):
     def setUp(self):
-        self.space = Space.objects.create(name="Test Space", icon_image_path="path/to/icon.png", description="This is a test space description.")
-        self.account = Account.objects.create(name="testuser", email="testuser@example.com")
-        self.space_account = SpaceAccount.objects.create(space=self.space, account=self.account)
+        self.space = Space.objects.create(
+            name="Test Space",
+            icon_image_path="path/to/icon.png",
+            description="This is a test space description.",
+        )
+        self.account = Account.objects.create(
+            name="testuser", email="testuser@example.com"
+        )
+        self.space_account = SpaceAccount.objects.create(
+            space=self.space, account=self.account
+        )
         self.permission = Permission.objects.create(name="スペース管理者")
         self.valid_data = {
             "space_account": self.space_account.id,
@@ -135,8 +175,12 @@ class SpaceAccountCreatePermissionSerializerTest(TestCase):
         """
         serializer = SpaceAccountPermissionCreateSerializer(data=self.valid_data)
         self.assertTrue(serializer.is_valid())
-        self.assertEqual(serializer.validated_data["space_account"], self.valid_data["space_account"])
-        self.assertEqual(serializer.validated_data["permission"], self.valid_data["permission"])
+        self.assertEqual(
+            serializer.validated_data["space_account"], self.valid_data["space_account"]
+        )
+        self.assertEqual(
+            serializer.validated_data["permission"], self.valid_data["permission"]
+        )
 
     def test_invalid_data(self):
         """
@@ -151,7 +195,9 @@ class SpaceAccountCreatePermissionSerializerTest(TestCase):
         """
         異常系(重複)
         """
-        SpaceAccountPermission.objects.create(space_account=self.space_account, permission=self.permission)
+        SpaceAccountPermission.objects.create(
+            space_account=self.space_account, permission=self.permission
+        )
         serializer = SpaceAccountPermissionCreateSerializer(data=self.valid_data)
         self.assertFalse(serializer.is_valid())
         self.assertIn("non_field_errors", serializer.errors)
@@ -159,11 +205,21 @@ class SpaceAccountCreatePermissionSerializerTest(TestCase):
 
 class SpaceAccountPermissionSerializerTest(TestCase):
     def setUp(self):
-        self.space = Space.objects.create(name="Test Space", icon_image_path="path/to/icon.png", description="This is a test space description.")
-        self.account = Account.objects.create(name="testuser", email="testuser@example.com")
-        self.space_account = SpaceAccount.objects.create(space=self.space, account=self.account)
+        self.space = Space.objects.create(
+            name="Test Space",
+            icon_image_path="path/to/icon.png",
+            description="This is a test space description.",
+        )
+        self.account = Account.objects.create(
+            name="testuser", email="testuser@example.com"
+        )
+        self.space_account = SpaceAccount.objects.create(
+            space=self.space, account=self.account
+        )
         self.permission = Permission.objects.create(name="スペース管理者")
-        self.space_account_permission = SpaceAccountPermission.objects.create(space_account=self.space_account, permission=self.permission)
+        self.space_account_permission = SpaceAccountPermission.objects.create(
+            space_account=self.space_account, permission=self.permission
+        )
 
     def test_space_account_permission_serializer(self):
         """
@@ -173,11 +229,25 @@ class SpaceAccountPermissionSerializerTest(TestCase):
         self.assertEqual(serializer.data["id"], self.space_account_permission.id)
         self.assertEqual(serializer.data["space_account"]["id"], self.space_account.id)
         self.assertEqual(serializer.data["space_account"]["space"]["id"], self.space.id)
-        self.assertEqual(serializer.data["space_account"]["space"]["name"], self.space.name)
-        self.assertEqual(serializer.data["space_account"]["space"]["icon_image_path"], self.space.icon_image_path)
-        self.assertEqual(serializer.data["space_account"]["space"]["description"], self.space.description)
-        self.assertEqual(serializer.data["space_account"]["account"]["id"], self.account.id)
-        self.assertEqual(serializer.data["space_account"]["account"]["name"], self.account.name)
-        self.assertEqual(serializer.data["space_account"]["account"]["email"], self.account.email)
+        self.assertEqual(
+            serializer.data["space_account"]["space"]["name"], self.space.name
+        )
+        self.assertEqual(
+            serializer.data["space_account"]["space"]["icon_image_path"],
+            self.space.icon_image_path,
+        )
+        self.assertEqual(
+            serializer.data["space_account"]["space"]["description"],
+            self.space.description,
+        )
+        self.assertEqual(
+            serializer.data["space_account"]["account"]["id"], self.account.id
+        )
+        self.assertEqual(
+            serializer.data["space_account"]["account"]["name"], self.account.name
+        )
+        self.assertEqual(
+            serializer.data["space_account"]["account"]["email"], self.account.email
+        )
         self.assertEqual(serializer.data["permission"]["id"], self.permission.id)
         self.assertEqual(serializer.data["permission"]["name"], self.permission.name)
