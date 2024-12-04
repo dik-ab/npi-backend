@@ -1,5 +1,6 @@
 from django.urls import reverse
 from datetime import datetime, timedelta
+from django.utils.timezone import make_aware
 from rest_framework import status
 from rest_framework.test import APITestCase
 from npi.utils import ERROR_MESSAGES
@@ -30,7 +31,7 @@ class AnnouncementListViewTests(APITestCase):
         ).value
 
         # お知らせを作成
-        now = datetime.now()
+        now = make_aware(datetime.now())
         for i in range(15):
             Announcement.objects.create(
                 title=f"Announcement {i}",
@@ -82,7 +83,7 @@ class AnnouncementListViewTests(APITestCase):
         """
         お知らせ一覧の取得時に、現在時刻がannouncements_from_atとannouncements_to_atの範囲外のお知らせは取得できないこと
         """
-        now = datetime.now()
+        now = make_aware(datetime.now())
         Announcement.objects.create(
             title="Outside Announcement",
             content="Content",
