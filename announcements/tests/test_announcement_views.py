@@ -77,3 +77,21 @@ class AnnouncementListViewTests(APITestCase):
         self.assertEqual(response.data["pagination"]["current_page"], 2)
         self.assertEqual(response.data["pagination"]["per_page"], 5)
         self.assertEqual(response.data["pagination"]["total_pages"], 3)
+
+    def test_get_announcements_outside_time_range(self):
+        """
+        お知らせ一覧の取得時に、現在時刻がannouncements_from_atとannouncements_to_atの範囲外のお知らせは取得できないこと
+        """
+        now = datetime.now()
+        Announcement.objects.create(
+            title="Outside Announcement",
+            content="Content",
+            announcements_from_at=now + timedelta(days=1),
+            announcements_to_at=now + timedelta(days=2),
+        )
+        response = self.client.get(self.url, {"page": 1, "per_page": 10})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["data"]), 10)  # Default per_page is 10
+        self.assertNotIn(
+            "Outside Announcement", [a["title"] for a in response.data["data"]]
+        )

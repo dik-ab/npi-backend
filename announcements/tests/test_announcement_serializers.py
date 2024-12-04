@@ -3,6 +3,7 @@ from announcements.serializers import AnnouncementSerializer
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
 
+
 class AnnouncementSerializerTest(TestCase):
     def setUp(self):
         self.valid_data = {
@@ -24,10 +25,20 @@ class AnnouncementSerializerTest(TestCase):
         serializer = AnnouncementSerializer(data=self.valid_data)
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.validated_data["title"], self.valid_data["title"])
-        self.assertEqual(serializer.validated_data["content"], self.valid_data["content"])
-        self.assertEqual(serializer.validated_data["announcements_from_at"], self.valid_data["announcements_from_at"])
-        self.assertEqual(serializer.validated_data["announcements_to_at"], self.valid_data["announcements_to_at"])
-        self.assertEqual(serializer.validated_data["file_path"], self.valid_data["file_path"])
+        self.assertEqual(
+            serializer.validated_data["content"], self.valid_data["content"]
+        )
+        self.assertEqual(
+            serializer.validated_data["announcements_from_at"],
+            self.valid_data["announcements_from_at"],
+        )
+        self.assertEqual(
+            serializer.validated_data["announcements_to_at"],
+            self.valid_data["announcements_to_at"],
+        )
+        self.assertEqual(
+            serializer.validated_data["file_path"], self.valid_data["file_path"]
+        )
 
     def test_invalid_data(self):
         serializer = AnnouncementSerializer(data=self.invalid_data)

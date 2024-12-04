@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Announcement
 from .serializers import AnnouncementSerializer
 from npi.utils import ERROR_MESSAGES, CustomPagination
+from django.utils import timezone
 
 # ロガーの設定
 logger = logging.getLogger(__name__)
@@ -18,8 +19,13 @@ class AnnouncementListView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        # お知らせを取得
-        announcements = Announcement.objects.filter(deleted_at__isnull=True)
+        # 現在時刻を取得
+        now = timezone.now()
+
+        # 現在時刻がannouncements_from_at〜announcements_to_atの範囲に入っているお知らせのみをフィルター
+        announcements = Announcement.objects.all().filter(
+            announcements_from_at__lte=now, announcements_to_at__gte=now
+        )
 
         # ページネーションの設定
         paginator = CustomPagination()
