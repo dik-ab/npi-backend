@@ -84,15 +84,23 @@ class AnnouncementListViewTests(APITestCase):
         お知らせ一覧の取得時に、現在時刻がannouncements_from_atとannouncements_to_atの範囲外のお知らせは取得できないこと
         """
         now = make_aware(datetime.now())
+        # 16個目の取得できないお知らせを作成
         Announcement.objects.create(
             title="Outside Announcement",
             content="Content",
             announcements_from_at=now + timedelta(days=1),
             announcements_to_at=now + timedelta(days=2),
         )
-        response = self.client.get(self.url, {"page": 1, "per_page": 10})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["data"]), 10)  # Default per_page is 10
+        # 16個目のお知らせが取得できないこと
+        page1_response = self.client.get(self.url, {"page": 1})
+        self.assertEqual(page1_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(page1_response.data["data"]), 10)
         self.assertNotIn(
-            "Outside Announcement", [a["title"] for a in response.data["data"]]
+            "Outside Announcement", [a["title"] for a in page1_response.data["data"]]
+        )
+        page2_response = self.client.get(self.url, {"page": 2})
+        self.assertEqual(page2_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(page2_response.data["data"]), 5)
+        self.assertNotIn(
+            "Outside Announcement", [a["title"] for a in page2_response.data["data"]]
         )
