@@ -22,10 +22,10 @@ class AnnouncementListView(APIView):
         # 現在時刻を取得
         now = timezone.now()
 
-        # 現在時刻がannouncements_from_at〜announcements_to_atの範囲に入っているお知らせのみをフィルター
+        # 現在時刻がannouncements_from_at〜announcements_to_atの範囲に入っているお知らせのみをフィルターし、idが大きい順にソート
         announcements = Announcement.objects.all().filter(
             announcements_from_at__lte=now, announcements_to_at__gte=now
-        )
+        ).order_by('-id')
 
         # ページネーションの設定
         paginator = CustomPagination()
