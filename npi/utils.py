@@ -1,6 +1,8 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+from spaces.models import SpaceAccountPermission
+
 
 # エラーメッセージの定義
 ERROR_MESSAGES = {
@@ -46,3 +48,15 @@ class CustomPagination(PageNumberPagination):
                 "total_items": self.page.paginator.count,
             },
         }, status=status.HTTP_200_OK)
+
+
+# ユーザーがそのスペースでの対象の操作権限があるかチェック
+def check_space_permission(user, space_id, permissions):
+    return SpaceAccountPermission.objects.filter(
+        space_account__space_id=space_id,
+        space_account__account=user,
+        space_account__deleted_at__isnull=True,
+        permission__name__in=permissions,
+        permission__deleted_at__isnull=True,
+        deleted_at__isnull=True
+    ).exists()
