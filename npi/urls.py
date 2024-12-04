@@ -26,8 +26,8 @@ from accounts.views.auth_views import LoginView, LogoutView, RefreshTokenView
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("me/", MeView.as_view(), name="me"),
-    path('me/2fa-generate/', Generate2FAView.as_view(), name='2fa-generate'),
-    path('me/2fa-verify/', Verify2FAView.as_view(), name='2fa-verify'),
+    path("me/2fa-generate/", Generate2FAView.as_view(), name="2fa-generate"),
+    path("me/2fa-verify/", Verify2FAView.as_view(), name="2fa-verify"),
     path("accounts/", include("accounts.urls")),
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
@@ -35,4 +35,5 @@ urlpatterns = [
     path("send-mail/", SendMailView.as_view(), name="send-mail"),
     path("health", lambda request: HttpResponse(status=200), name="health_check"),
     path("spaces/", include("spaces.urls")),
+    path("announcements/", include("announcements.urls")),
 ]

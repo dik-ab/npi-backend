@@ -17,13 +17,17 @@ class SpaceSerializer(serializers.ModelSerializer):
 
     icon_image_path = serializers.CharField(
         validators=[
-            MaxLengthValidator(500, message="アイコン画像フルパスは500文字以下である必要があります。"),
+            MaxLengthValidator(
+                500, message="アイコン画像フルパスは500文字以下である必要があります。"
+            ),
         ],
     )
 
     description = serializers.CharField(
         validators=[
-            MaxLengthValidator(1000, message="説明は1000文字以下である必要があります。"),
+            MaxLengthValidator(
+                1000, message="説明は1000文字以下である必要があります。"
+            ),
         ],
     )
 
@@ -51,33 +55,35 @@ def validate_account_exists(value):
 
 class SpaceAccountCreateSerializer(serializers.ModelSerializer):
 
-    space = serializers.IntegerField(
-        required=True,
-        validators=[
-            validate_space_exists
-        ]
-    )
+    space = serializers.IntegerField(required=True, validators=[validate_space_exists])
     account = serializers.IntegerField(
-        required=True,
-        validators=[
-            validate_account_exists
-        ]
+        required=True, validators=[validate_account_exists]
     )
 
     def validate(self, data):
-        space_id = data.get('space').id if isinstance(data.get('space'), Space) else data.get('space')
-        account_id = data.get('account').id if isinstance(data.get('account'), Account) else data.get('account')
+        space_id = (
+            data.get("space").id
+            if isinstance(data.get("space"), Space)
+            else data.get("space")
+        )
+        account_id = (
+            data.get("account").id
+            if isinstance(data.get("account"), Account)
+            else data.get("account")
+        )
 
         # 重複チェック
         existing_instance = SpaceAccount.objects.filter(
             space_id=space_id,
             account_id=account_id,
             # 論理削除されていないもののみチェック
-            deleted_at__isnull=True
+            deleted_at__isnull=True,
         ).first()
 
         if existing_instance:
-            raise serializers.ValidationError("指定されたスペースとアカウントの組み合わせは既に存在します。")
+            raise serializers.ValidationError(
+                "指定されたスペースとアカウントの組み合わせは既に存在します。"
+            )
 
         return data
 
@@ -96,7 +102,7 @@ class SpaceAccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SpaceAccount
-        fields = ['id', 'space', 'account']
+        fields = ["id", "space", "account"]
 
 
 class PermissionSerializer(serializers.ModelSerializer):
@@ -118,9 +124,11 @@ class PermissionSerializer(serializers.ModelSerializer):
 def validate_space_account_exists(value):
     # 存在チェック ※論理削除されていないもののみチェック
     if not SpaceAccount.objects.filter(id=value, deleted_at__isnull=True).exists():
-        raise serializers.ValidationError("存在しないスペース-アカウントが指定されています。")
+        raise serializers.ValidationError(
+            "存在しないスペース-アカウントが指定されています。"
+        )
 
-
+        
 def validate_permission_exists(value):
     # 存在チェック ※論理削除されていないもののみチェック
     if not Permission.objects.filter(id=value, deleted_at__isnull=True).exists():
@@ -130,32 +138,36 @@ def validate_permission_exists(value):
 class SpaceAccountPermissionCreateSerializer(serializers.ModelSerializer):
 
     space_account = serializers.IntegerField(
-        required=True,
-        validators=[
-            validate_space_account_exists
-        ]
+        required=True, validators=[validate_space_account_exists]
     )
     permission = serializers.IntegerField(
-        required=True,
-        validators=[
-            validate_permission_exists
-        ]
+        required=True, validators=[validate_permission_exists]
     )
 
     def validate(self, data):
-        space_account_id = data.get('space_account').id if isinstance(data.get('space_account'), SpaceAccount) else data.get('space_account')
-        permission_id = data.get('permission').id if isinstance(data.get('permission'), Permission) else data.get('permission')
+        space_account_id = (
+            data.get("space_account").id
+            if isinstance(data.get("space_account"), SpaceAccount)
+            else data.get("space_account")
+        )
+        permission_id = (
+            data.get("permission").id
+            if isinstance(data.get("permission"), Permission)
+            else data.get("permission")
+        )
 
         # 重複チェック
         existing_instance = SpaceAccountPermission.objects.filter(
             space_account_id=space_account_id,
             permission_id=permission_id,
             # 論理削除されていないもののみチェック
-            deleted_at__isnull=True
+            deleted_at__isnull=True,
         ).first()
 
         if existing_instance:
-            raise serializers.ValidationError("指定されたスペース-アカウントと権限の組み合わせは既に存在します。")
+            raise serializers.ValidationError(
+                "指定されたスペース-アカウントと権限の組み合わせは既に存在します。"
+            )
 
         return data
 
@@ -174,4 +186,4 @@ class SpaceAccountPermissionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SpaceAccountPermission
-        fields = ['id', 'space_account', 'permission']
+        fields = ["id", "space_account", "permission"]
