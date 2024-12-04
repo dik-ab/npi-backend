@@ -84,14 +84,14 @@ class AnnouncementListViewTests(APITestCase):
         お知らせ一覧の取得時に、現在時刻がannouncements_from_atとannouncements_to_atの範囲外のお知らせは取得できないこと
         """
         now = make_aware(datetime.now())
-        # 16個目の取得できないお知らせを作成
+        # 16個目の範囲外のお知らせを作成
         Announcement.objects.create(
             title="Outside Announcement",
             content="Content",
             announcements_from_at=now + timedelta(days=1),
             announcements_to_at=now + timedelta(days=2),
         )
-        # 16個目のお知らせが取得できないこと
+        # 16個目の範囲外のお知らせが取得できないこと
         page1_response = self.client.get(self.url, {"page": 1})
         self.assertEqual(page1_response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(page1_response.data["data"]), 10)
@@ -103,4 +103,31 @@ class AnnouncementListViewTests(APITestCase):
         self.assertEqual(len(page2_response.data["data"]), 5)
         self.assertNotIn(
             "Outside Announcement", [a["title"] for a in page2_response.data["data"]]
+        )
+
+    def test_get_announcements_deleted(self):
+        """
+        お知らせ一覧の取得時に、deleted_atが設定されているお知らせは取得できないこと
+        """
+        now = make_aware(datetime.now())
+        # 16個目の論理削除済のお知らせを作成
+        Announcement.objects.create(
+            title="Deleted Announcement",
+            content="Content",
+            announcements_from_at=now,
+            announcements_to_at=now + timedelta(days=1),
+            deleted_at=now,
+        )
+        # 16個目の論理削除済のお知らせが取得できないこと
+        page1_response = self.client.get(self.url, {"page": 1})
+        self.assertEqual(page1_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(page1_response.data["data"]), 10)
+        self.assertNotIn(
+            "Deleted Announcement", [a["title"] for a in page1_response.data["data"]]
+        )
+        page2_response = self.client.get(self.url, {"page": 2})
+        self.assertEqual(page2_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(page2_response.data["data"]), 5)
+        self.assertNotIn(
+            "Deleted Announcement", [a["title"] for a in page2_response.data["data"]]
         )
