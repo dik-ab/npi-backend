@@ -56,7 +56,7 @@ def check_space_permission(user, space_id, permissions):
         space_account__space_id=space_id,
         space_account__account=user,
         space_account__deleted_at__isnull=True,
-        permission__name__in=permissions,
+        permission__id__in=permissions,
         permission__deleted_at__isnull=True,
         deleted_at__isnull=True
     ).exists()

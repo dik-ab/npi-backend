@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from npi.utils import ERROR_MESSAGES, CustomPagination, check_space_permission
 from projects.models import Project
-from spaces.models import Space
+from spaces.models import Space, Permission
 from projects.serializer import ProjectSerializer
 from django.utils import timezone
 
@@ -22,7 +22,9 @@ class ProjectListCreateAPIView(APIView):
     # 一覧取得
     def get(self, request, space_id):
         # ユーザーがそのスペースでの対象の操作権限があるかチェック
-        if not check_space_permission(request.user, space_id, ['space_admin', 'viewer', 'creator', 'distributer']):
+        permission_names = ['space_admin', 'creator', 'disrtibutor', 'viewer']
+        permission_ids = list(Permission.objects.filter(name__in=permission_names, deleted_at__isnull=True).values_list('id', flat=True))
+        if not check_space_permission(request.user, space_id, permission_ids):
             return Response(
                 ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
             )
@@ -58,7 +60,9 @@ class ProjectListCreateAPIView(APIView):
     # 作成
     def post(self, request, space_id):
         # ユーザーがそのスペースでの対象の操作権限があるかチェック
-        if not check_space_permission(request.user, space_id, ['space_admin']):
+        permission_names = ['space_admin']
+        permission_ids = list(Permission.objects.filter(name__in=permission_names, deleted_at__isnull=True).values_list('id', flat=True))
+        if not check_space_permission(request.user, space_id, permission_ids):
             return Response(
                 ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
             )
@@ -89,7 +93,9 @@ class ProjectRetrieveUpdateDestroyAPIView(APIView):
     # 詳細取得
     def get(self, request, space_id, project_id):
         # ユーザーがそのスペースでの対象の操作権限があるかチェック
-        if not check_space_permission(request.user, space_id, ['space_admin', 'viewer', 'creator', 'distributer']):
+        permission_names = ['space_admin', 'creator', 'disrtibutor', 'viewer']
+        permission_ids = list(Permission.objects.filter(name__in=permission_names, deleted_at__isnull=True).values_list('id', flat=True))
+        if not check_space_permission(request.user, space_id, permission_ids):
             return Response(
                 ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
             )
@@ -110,7 +116,9 @@ class ProjectRetrieveUpdateDestroyAPIView(APIView):
     # 更新
     def put(self, request, space_id, project_id):
         # ユーザーがそのスペースでの対象の操作権限があるかチェック
-        if not check_space_permission(request.user, space_id, ['space_admin']):
+        permission_names = ['space_admin']
+        permission_ids = list(Permission.objects.filter(name__in=permission_names, deleted_at__isnull=True).values_list('id', flat=True))
+        if not check_space_permission(request.user, space_id, permission_ids):
             return Response(
                 ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
             )
@@ -141,7 +149,9 @@ class ProjectRetrieveUpdateDestroyAPIView(APIView):
     # 削除
     def delete(self, request, space_id, project_id):
         # ユーザーがそのスペースでの対象の操作権限があるかチェック
-        if not check_space_permission(request.user, space_id, ['space_admin']):
+        permission_names = ['space_admin']
+        permission_ids = list(Permission.objects.filter(name__in=permission_names, deleted_at__isnull=True).values_list('id', flat=True))
+        if not check_space_permission(request.user, space_id, permission_ids):
             return Response(
                 ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
             )
