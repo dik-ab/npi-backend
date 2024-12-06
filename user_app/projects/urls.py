@@ -1,4 +1,3 @@
-from django.urls import path
 from django.urls import path, include
 from user_app.projects.views import ProjectListCreateAPIView, ProjectRetrieveUpdateDestroyAPIView
 
