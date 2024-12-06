@@ -55,14 +55,17 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_ses",
     "corsheaders",
+    "django_hosts",
     "rest_framework",
-    "accounts",
-    "spaces",
-    "announcements",   
-    "projects",
+    "shared",
+    "user_app.accounts",
+    "user_app.spaces",
+    "user_app.announcements",
+    "user_app.projects",
 ]
 
 MIDDLEWARE = [
+    "django_hosts.middleware.HostsRequestMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -71,6 +74,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "django_hosts.middleware.HostsResponseMiddleware",
 ]
 
 REST_FRAMEWORK = {
@@ -150,3 +154,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DEFAULT_FROM_EMAIL = os.environ.get("SENDER_EMAIL")
 AWS_SES_REGION_NAME = os.environ.get("AWS_REGION")
 AWS_SES_REGION_ENDPOINT = f"email.{AWS_SES_REGION_NAME}.amazonaws.com"
+
+# django-hosts の設定
+ROOT_HOSTCONF = 'npi.hosts'
+DEFAULT_HOST = 'user_app'

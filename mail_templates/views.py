@@ -6,12 +6,12 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import SendMailSerializer
+from mail_templates.serializers import SendMailSerializer
 
 
 class SendMailView(APIView):
     authentication_classes = []
-    
+
     def post(self, request):
         serializer = SendMailSerializer(data=request.data)
         if serializer.is_valid():

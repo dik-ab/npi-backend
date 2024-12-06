@@ -1,17 +1,17 @@
 # tests.py
 
 from django.core import mail
-from django.urls import reverse
+from django_hosts.resolvers import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from accounts.models import Account
+from shared.models import Account
 from django.contrib.auth.hashers import make_password
 
 
 class SendMailViewTests(APITestCase):
     def setUp(self):
         # テスト用のAPIエンドポイントURLを設定
-        self.url = reverse("send-mail")
+        self.url = reverse("send-mail", host='user_app')
         self.valid_payload = {
             "recipient_email": "test@example.com",
             "subject": "Test Subject",
@@ -23,7 +23,7 @@ class SendMailViewTests(APITestCase):
             "message": "This is a test message.",
         }
 
-        self.login_url = reverse("login")
+        self.login_url = reverse("login", host='user_app')
         # テスト用ユーザーを作成
         self.account1 = Account.objects.create(
             email="test@example.com",

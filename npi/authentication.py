@@ -1,7 +1,7 @@
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.exceptions import AuthenticationFailed
-from accounts.models import Account
+from shared.models import Account
 import logging
 from npi.utils import ERROR_MESSAGES
 
