@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from spaces.models import SpaceAccountPermission
+from shared.models import SpaceAccountPermission
 
 
 # エラーメッセージの定義
