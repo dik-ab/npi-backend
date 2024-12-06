@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "user_app.spaces",
     "user_app.announcements",
     "user_app.projects",
+    "user_app.contents",
 ]
 
 MIDDLEWARE = [
