@@ -2,7 +2,6 @@ from django.contrib.auth.hashers import check_password
 from django.test import TestCase
 
 from user_app.accounts.serializer import AccountSerializer, TOTPVerifySerializer, PasswordResetSerializer, PasswordResetVerifySerializer, PasswordResetConfirmSerializer
-from django.core import mail
 from shared.models import Account
 from django.utils.timezone import now
 from datetime import timedelta
