@@ -244,7 +244,6 @@ class ContentsRetrieveReproduceUpdateDestroyAPIViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['data']['name'], 'Test Content1')
-        print(response.data)
 
     def test_get_contents_detail_without_permission(self):
         """

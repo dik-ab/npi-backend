@@ -10,6 +10,7 @@ class Account(models.Model):
     email = models.EmailField(null=False, blank=False, unique=True)
     password = models.CharField(null=False, blank=False)
     secret_key = models.CharField(max_length=32, null=True, blank=True)
+    last_2fa_at = models.DateTimeField(null=True, blank=True)
     last_login_at = models.DateTimeField(null=True, blank=True)
     reset_token = models.CharField(
         max_length=128,

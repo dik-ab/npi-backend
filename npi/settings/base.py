@@ -92,6 +92,8 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
+TWO_FACTOR_AUTH_TIMEOUT = timedelta(hours=24)
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",

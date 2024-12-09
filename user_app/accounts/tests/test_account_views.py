@@ -41,7 +41,6 @@ class MeViewTestCase(APITestCase):
         """
         自身のアカウント情報取得成功
         """
-        print("aaaaa", self.login_url)
         response = self.client.get(self.me_url)
         logger.info(f"Request Cookies: {self.client.cookies}")
         logger.info(f"Response Cookies: {response.cookies}")
