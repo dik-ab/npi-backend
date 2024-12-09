@@ -7,8 +7,10 @@ import pyotp
 import qrcode
 from io import BytesIO
 import base64
+from django.core.mail import send_mail
+from django.conf import settings
 
-from user_app.accounts.serializer import AccountSerializer, TOTPVerifySerializer
+from user_app.accounts.serializer import AccountSerializer, TOTPVerifySerializer, PasswordResetSerializer, PasswordResetVerifySerializer, PasswordResetConfirmSerializer
 from npi.utils import ERROR_MESSAGES
 from shared.models import Account
 
@@ -57,6 +59,73 @@ class AccountView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         logger.error("Failed to create account: %s", serializer.errors)
+        return Response(
+            ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class PasswordResetView(APIView):
+    # 認証クラスを無効にする
+    authentication_classes = []
+
+    def post(self, request):
+        serializer = PasswordResetSerializer(data=request.data)
+        if serializer.is_valid():
+            sender_email = settings.DEFAULT_FROM_EMAIL
+            email = serializer.validated_data['email']
+            user = Account.objects.get(email=email)
+
+            # トークン生成
+            raw_token = serializer.create_reset_token(user)
+
+            # メール送信
+            reset_url = f"https://example.com/reset-password?token={raw_token}"
+            try:
+                send_mail(
+                    subject="パスワード再設定",
+                    message=f"以下のリンクからパスワードを再設定してください: {reset_url}",
+                    from_email=sender_email,
+                    recipient_list=[email],
+                    fail_silently=False,
+                )
+                return Response(
+                    {
+                        "status": "success",
+                        "message": "パスワードリセットリンクを送信しました。"
+                    }, status=status.HTTP_200_OK
+                )
+            except Exception as e:
+                return Response(
+                    {"error": f"メールの送信に失敗しました: {str(e)}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+        return Response(
+            ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class PasswordResetVerifyView(APIView):
+    # 認証クラスを無効にする
+    authentication_classes = []
+
+    def post(self, request):
+        serializer = PasswordResetVerifySerializer(data=request.data)
+        if serializer.is_valid():
+            return Response({"status": "success"}, status=status.HTTP_200_OK)
+        return Response(
+            ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class PasswordResetConfirmView(APIView):
+    # 認証クラスを無効にする
+    authentication_classes = []
+
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": "success"}, status=status.HTTP_200_OK)
         return Response(
             ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
         )

@@ -1,6 +1,7 @@
 from django.contrib.auth.hashers import check_password
 from django.db import models
 import uuid
+from django.utils.timezone import now
 
 
 class Account(models.Model):
@@ -10,6 +11,17 @@ class Account(models.Model):
     password = models.CharField(null=False, blank=False)
     secret_key = models.CharField(max_length=32, null=True, blank=True)
     last_login_at = models.DateTimeField(null=True, blank=True)
+    reset_token = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True,
+        help_text="パスワードリセット用のトークン"
+    )
+    token_expiration = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="トークンの有効期限"
+    )
     deleted_at = models.DateTimeField(null=True, blank=True)
 
     @property
@@ -24,6 +36,12 @@ class Account(models.Model):
         パスワードを検証
         """
         return check_password(raw_password, self.password)
+
+    def is_reset_token_valid(self):
+        """トークンが有効かをチェックする"""
+        if self.reset_token and self.token_expiration:
+            return self.token_expiration > now()
+        return False
 
 
 class Announcement(models.Model):
