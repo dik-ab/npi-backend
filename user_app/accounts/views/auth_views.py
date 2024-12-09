@@ -1,5 +1,5 @@
 import logging
-from django.utils.timezone import now
+from django.utils.timezone import now, localtime
 from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
@@ -8,6 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 from npi.utils import ERROR_MESSAGES
 from rest_framework.permissions import IsAuthenticated
+from django.http import HttpRequest
 
 from shared.models import Account
 
@@ -53,6 +54,9 @@ class LoginView(APIView):
             refresh = RefreshToken.for_user(user)
             access = refresh.access_token
 
+            # アクセストークンに２要素認証完了フラグを追加
+            access['isTwoFactorAuthenticated'] = False
+
             access_max_age = int(
                 settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds()
             )
@@ -61,7 +65,7 @@ class LoginView(APIView):
             )
 
             # アカウントのlast_login_atを現在時刻で更新
-            user.last_login_at = now()
+            user.last_login_at = localtime(now())
             user.save()
 
             # HttpOnly Cookie にトークンを設定
@@ -108,9 +112,37 @@ class RefreshTokenView(TokenRefreshView):
             )
         # リフレッシュトークンで新しいアクセストークンを生成
         try:
-            request.data["refresh"] = refresh_token
-            response = super().post(request, *args, **kwargs)
+            new_data = request.data.copy()
+            new_data["refresh"] = refresh_token
+
+            # 新しいデータを使用して新しいリクエストを作成
+            new_request = HttpRequest()
+            new_request.method = request.method
+            new_request.META = request.META
+            new_request.COOKIES = request.COOKIES
+            new_request.data = new_data
+
+            # 親クラスのpostメソッドを呼び出し
+            response = super().post(new_request, *args, **kwargs)
             access_token = response.data.get("access")
+
+            # アクセストークンにカスタムクレームを追加
+            refresh = RefreshToken(refresh_token)
+            access_token = refresh.access_token
+
+            # 最後の２FA認証からの経過時間をチェック
+            user = Account.objects.get(email=new_data["email"])
+
+            if user.last_2fa_at:
+                if localtime(user.last_2fa_at) + settings.TWO_FACTOR_AUTH_TIMEOUT < localtime(now()):
+                    # ２FA認証が必要
+                    access_token["isTwoFactorAuthenticated"] = False
+                else:
+                    access_token["isTwoFactorAuthenticated"] = True
+            else:
+                access_token["isTwoFactorAuthenticated"] = False
+
+            response.data["access"] = str(access_token)
 
             response.set_cookie(
                 key="access_token",
@@ -121,9 +153,8 @@ class RefreshTokenView(TokenRefreshView):
                 max_age=15 * 60,  # 有効期限
             )
             return response
-        except Exception:
-            # トークン検証で例外が発生した場合（トークンの有効期限切れなど）
-            logger.error("An error occurred during refresh token validation.")
+        except Exception as e:
+            logger.error(f"An error occurred during refresh token validation: {str(e)}")
             return Response(
                 ERROR_MESSAGES["401_ERRORS"], status=status.HTTP_401_UNAUTHORIZED
             )

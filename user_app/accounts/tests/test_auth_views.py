@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from npi.utils import ERROR_MESSAGES
 from django_hosts.resolvers import reverse
+from django.utils.timezone import now, localtime
 
 from shared.models import Account
 
@@ -15,6 +16,7 @@ class AuthViewsTestCase(APITestCase):
             email="test@example.com",
             password=make_password("securepassword1"),  # パスワードを暗号化して保存
             name="Test User",
+            last_2fa_at=localtime(now()),
         )
         self.login_url = reverse("login", host='user_app')
         self.refresh_url = reverse("refresh", host='user_app')
@@ -77,7 +79,7 @@ class AuthViewsTestCase(APITestCase):
 
         # リフレッシュトークンでアクセストークンを再発行
         self.client.cookies["refresh_token"] = refresh_token  # Cookieを設定
-        response = self.client.post(self.refresh_url)
+        response = self.client.post(self.refresh_url, {"email": "test@example.com"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access_token", response.cookies)
 
@@ -85,7 +87,7 @@ class AuthViewsTestCase(APITestCase):
         """
         リフレッシュトークンがない場合にエラーを返すことをテスト
         """
-        response = self.client.post(self.refresh_url)
+        response = self.client.post(self.refresh_url, {"email": "test@example.com"})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.data)
 
@@ -94,7 +96,7 @@ class AuthViewsTestCase(APITestCase):
         無効なリフレッシュトークンでエラーを返すことをテスト
         """
         self.client.cookies["refresh_token"] = "invalidtoken"
-        response = self.client.post(self.refresh_url)
+        response = self.client.post(self.refresh_url, {"email": "test@example.com"})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIn("error", response.data)
 

@@ -9,6 +9,8 @@ from io import BytesIO
 import base64
 from django.core.mail import send_mail
 from django.conf import settings
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils.timezone import now, localtime
 
 from user_app.accounts.serializer import AccountSerializer, TOTPVerifySerializer, PasswordResetSerializer, PasswordResetVerifySerializer, PasswordResetConfirmSerializer
 from npi.utils import ERROR_MESSAGES
@@ -200,10 +202,44 @@ class Verify2FAView(views.APIView):
         totp = pyotp.TOTP(user_totp.secret_key)
 
         if totp.verify(verification_code):
-            return Response(
-                {"status": "success", "message": "2FA検証が成功しました"},
-                status=status.HTTP_200_OK,
+            # アカウントのlast_2fa_atを現在時刻で更新
+            user_totp.last_2fa_at = localtime(now())
+            user_totp.save()
+
+            # 2要素認証完了フラグを追加してアクセストークンを再発行
+            refresh = RefreshToken.for_user(user_totp)
+            access = refresh.access_token
+
+            access['isTwoFactorAuthenticated'] = True
+
+            access_max_age = int(
+                settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds()
             )
+            refresh_max_age = int(
+                settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()
+            )
+
+            response = Response(
+                {"status": "success", "message": "2FA検証が成功しました"}, status=status.HTTP_200_OK
+            )
+            response.set_cookie(
+                key="access_token",
+                value=str(access),
+                httponly=settings.HTTPONLY_COOKIES,
+                secure=settings.SECURE_COOKIES,
+                samesite=None,
+                max_age=access_max_age,
+            )
+            response.set_cookie(
+                key="refresh_token",
+                value=str(refresh),
+                httponly=settings.HTTPONLY_COOKIES,
+                secure=settings.SECURE_COOKIES,
+                samesite=None,
+                max_age=refresh_max_age,
+            )
+
+            return response
 
         return Response(
             ERROR_MESSAGES["400_ERRORS"], status=status.HTTP_400_BAD_REQUEST
